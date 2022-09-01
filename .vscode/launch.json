@@ -1,0 +1,85 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "invalid parameters",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/src/lib/index.ts",
+			"args": [
+				"test"
+			]
+		},
+        {
+			"name": "countries",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/src/lib/index.ts",
+			"args": [
+				".[0]",
+                "~/develop/jexp/data/countries.json"
+			]
+		},
+		{
+			"name": "countries yaml",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/src/lib/index.ts",
+			"args": [
+				".[0]",
+                "~/develop/jexp/data/countries.json",
+				"-o",
+				"yaml"
+			]
+		},
+		{
+			"name": "countries -b",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/src/lib/index.ts",
+			"args": [
+				".[0]",
+                "~/develop/jexp/data/countries.json",
+				"-b"
+			]
+		},
+		{
+			"name": "countries -d",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/src/lib/index.ts",
+			"args": [
+				".[0]",
+                "~/develop/jexp/data/countries.json",
+				"-d"
+			]
+		},
+		{
+			"name": "lab",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/src/dev/lab.ts"			
+		}      
+    ]
+}

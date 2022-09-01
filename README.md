@@ -1,2 +1,3 @@
-# model
-json validation from a model 
+# Model
+
+in construction

@@ -1,0 +1,10 @@
+{
+	"entryPoints": [
+		"src/"
+	],
+	"out": "doc",
+	"excludePrivate": true,
+	"excludeProtected": true,
+	"name": "jexp",
+	"readme": "none"
+}
