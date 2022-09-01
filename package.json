@@ -1,7 +1,7 @@
 {
-	"name": "model",
-	"version": "0.1.7",
-	"description": "Validator json from model definition by line of commands. The expressions correspond to the package js-expressions",
+	"name": "jemv",
+	"version": "0.0.1",
+	"description": "Validator json from jemv definition by line of commands. The expressions correspond to the package js-expressions",
 	"author": "Flavio Lionel Rita <flaviolrita@hotmail.com>",
 	"license": "Apache-2.0 License",
 	"private": true,
@@ -9,13 +9,13 @@
 		"node": ">=10"
 	},
 	"main": "src/index.js",
-	"homepage": "https://github.com/FlavioLionelRita/model#readme",
+	"homepage": "https://github.com/FlavioLionelRita/jemv#readme",
 	"bugs": {
-		"url": "https://github.com/FlavioLionelRita/model/issues"
+		"url": "https://github.com/FlavioLionelRita/jemv/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/FlavioLionelRita/model.git"
+		"url": "https://github.com/FlavioLionelRita/jemv.git"
 	},
 	"scripts": {
 		"lint": "grunt lint",
