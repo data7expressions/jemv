@@ -1,7 +1,7 @@
 {
 	"name": "jemv",
-	"version": "0.0.1",
-	"description": "Validator json from jemv definition by line of commands. The expressions correspond to the package js-expressions",
+	"version": "0.0.3",
+	"description": "Json Schema validator",
 	"author": "Flavio Lionel Rita <flaviolrita@hotmail.com>",
 	"license": "Apache-2.0 License",
 	"private": true,
@@ -20,12 +20,10 @@
 	"scripts": {
 		"lint": "grunt lint",
 		"build": "grunt build",
-		"dist": "grunt dist"
+		"dist": "grunt dist",
+		"publish": "grunt publish"
 	},
 	"dependencies": {
-		"commander": "^9.4.0",
-		"js-expressions": "1.1.0",
-		"js-yaml": "^4.1.0"
 	},
 	"devDependencies": {
 		"@types/jest": "^27.0.1",

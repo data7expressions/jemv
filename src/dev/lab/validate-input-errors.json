@@ -1,0 +1,14 @@
+[
+  {
+    "path": ".fruits.3",
+    "message": "invalid type string"
+  },
+  {
+    "path": ".vegetables.0",
+    "message": "the following fields are required [veggieName, veggieLike]"
+  },
+  {
+    "path": ".vegetables.1.veggieLike",
+    "message": "invalid type boolean"
+  }
+]

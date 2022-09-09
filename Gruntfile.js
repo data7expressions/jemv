@@ -7,7 +7,8 @@ module.exports = function (grunt) {
 	grunt.initConfig({
 		exec: {
 			lint: { cmd: 'npx eslint src ' },
-			tsc: { cmd: 'npx tsc ' }
+			tsc: { cmd: 'npx tsc ' },
+			publish: { cmd: 'cd ./dist && npm publish' }
 		},
 		clean: {
 			build: ['build'],
@@ -26,7 +27,6 @@ module.exports = function (grunt) {
 		delete data.scripts
 		delete data.private
 		data.main = 'index.js'
-		data.bin = { jexp: 'index.js' }
 		data.types = 'index.d.ts'
 		fs.writeFileSync('dist/package.json', JSON.stringify(data, null, 2), 'utf8')
 	})
@@ -34,5 +34,6 @@ module.exports = function (grunt) {
 	grunt.registerTask('build', ['clean:build', 'exec:tsc'])
 	grunt.registerTask('lint', ['exec:lint'])
 	grunt.registerTask('dist', ['clean:dist', 'build', 'copy:build', 'copy:readme', 'copy:license', 'create-package'])
+	grunt.registerTask('publish', ['lint', 'build', 'dist', 'exec:publish'])
 	grunt.registerTask('default', [])
 }
