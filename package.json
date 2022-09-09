@@ -1,6 +1,6 @@
 {
 	"name": "jemv",
-	"version": "0.0.10",
+	"version": "0.0.11",
 	"description": "Json Schema validator",
 	"author": "Flavio Lionel Rita <flaviolrita@hotmail.com>",
 	"license": "Apache-2.0 License",
@@ -21,6 +21,7 @@
 		"lint": "grunt lint",
 		"build": "grunt build",
 		"dist": "grunt dist",
+		"to_develop": "grunt to_develop",
 		"release": "grunt release"
 	},
 	"dependencies": {
