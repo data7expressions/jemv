@@ -26,5 +26,5 @@ if [ $SOURCE_BRANCH == 'develop' ]; then
     git branch -d release
     git push origin --delete release
 else
-    echo "The release must be executed from the develop branch and not from the ${SOURCE_BRANCH} branch "
+    echo "Error: The release must be executed from the develop branch and not from the ${SOURCE_BRANCH} branch "
 fi;
