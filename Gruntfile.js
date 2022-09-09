@@ -8,7 +8,8 @@ module.exports = function (grunt) {
 		exec: {
 			lint: { cmd: 'npx eslint src ' },
 			tsc: { cmd: 'npx tsc ' },
-			release: { cmd: './release.sh' }
+			release: { cmd: './release.sh' },
+			to_develop: { cmd: './to_develop.sh' }
 		},
 		clean: {
 			build: ['build'],
@@ -35,5 +36,6 @@ module.exports = function (grunt) {
 	grunt.registerTask('build', ['clean:build', 'exec:tsc'])
 	grunt.registerTask('dist', ['clean:dist', 'build', 'copy:build', 'copy:readme', 'copy:license', 'create-package'])
 	grunt.registerTask('release', ['lint', 'build', 'dist', 'exec:release'])
+	grunt.registerTask('to_develop', ['lint', 'build', 'dist', 'exec:to_develop'])
 	grunt.registerTask('default', [])
 }
