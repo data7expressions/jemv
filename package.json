@@ -1,6 +1,6 @@
 {
 	"name": "jemv",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"description": "Json Schema validator",
 	"author": "Flavio Lionel Rita <flaviolrita@hotmail.com>",
 	"license": "Apache-2.0 License",
