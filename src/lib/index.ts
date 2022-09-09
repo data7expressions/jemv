@@ -2,6 +2,7 @@ import { ValidateResult, Schema, BuildedSchema, ConstraintBuilder, ConstraintVal
 import { Jemv } from './manager/jemv'
 export * from './model/schema'
 export * from './manager/schema'
+export * from './manager/jemv'
 
 export const jemv = Jemv.instance
 
