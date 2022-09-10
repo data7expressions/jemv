@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# get data
 SOURCE_BRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
 VERSION=$(jq -r '.version' ./package.json )
 
