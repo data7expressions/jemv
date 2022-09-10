@@ -1,10 +1,10 @@
 {
 	"entryPoints": [
-		"src/"
+		"src/lib"
 	],
-	"out": "doc",
+	"out": "doc/source",
 	"excludePrivate": true,
 	"excludeProtected": true,
-	"name": "jexp",
+	"name": "jemv",
 	"readme": "none"
 }
