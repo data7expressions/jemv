@@ -117,5 +117,5 @@ export interface ValidateError {
 }
 export interface ValidateResult {
 	errors:ValidateError[]
-	isValid: boolean
+	valid: boolean
 }

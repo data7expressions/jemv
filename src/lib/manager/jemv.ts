@@ -1,4 +1,4 @@
-import { ValidateResult, Schema, BuildedSchema, ConstraintBuilder, ConstraintValidator } from '../model/schema'
+import { ValidateResult, Schema, ConstraintBuilder, ConstraintValidator } from '../model/schema'
 import { FormatCollection, SchemaCompleter, SchemaBuilder, SchemaCollection, SchemaValidator, CoreConstraintBuilder, FunctionConstraintValidator } from './schema'
 
 export class Jemv {
@@ -45,24 +45,8 @@ export class Jemv {
 		this.validator.add(constraintValidator)
 	}
 
-	public add (schema: Schema) : BuildedSchema {
-		return this.schemas.add(schema)
-	}
-
-	public async get (uri: string) : Promise<BuildedSchema> {
-		return this.schemas.get(uri)
-	}
-
-	public complete (schema: Schema): Schema {
-		return this.completer.complete(schema)
-	}
-
-	public build (schema: Schema): BuildedSchema {
-		return this.add(schema)
-	}
-
 	public async validate (schema: string|Schema, data:any) : Promise<ValidateResult> {
-		const builded = await this.schemas.solve(schema)
+		const builded = await this.schemas.get(schema)
 		return this.validator.validate(builded, data)
 	}
 }

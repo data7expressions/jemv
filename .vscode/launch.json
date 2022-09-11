@@ -12,6 +12,15 @@
 				"<node_internals>/**"
 			],
 			"program": "${workspaceFolder}/src/dev/lab/lab-ref.ts"
+		},
+		{
+			"name": "task generate test",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/src/dev/task/generate-test.ts"
 		}
     ]
 }

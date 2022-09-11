@@ -54,21 +54,13 @@
 		"typescript": "^4.3.5"
 	},
 	"keywords": [
-		"cli",
-		"expression",
-		"expressions",
-		"exp",
-		"parser",
-		"eval",
-		"evaluator"
+		"json",
+		"schema",
+		"json-schema"
 	],
 	"tags": [
-		"cli",
-		"expression",
-		"expressions",
-		"exp",
-		"parser",
-		"eval",
-		"evaluator"
+		"json",
+		"schema",
+		"json-schema"
 	]
 }

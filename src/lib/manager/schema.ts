@@ -10,7 +10,7 @@ export class SchemaCompleter {
 		const schema = Helper.clone(source)
 		this.solveUndefined(schema)
 		this.extend(schema)
-		this._complete(schema)
+		// this._complete(schema)
 		return schema
 	}
 
@@ -56,24 +56,21 @@ export class SchemaCompleter {
 		}
 	}
 
-	private _complete (schema: Schema): void {
-		this.completeProperty(schema)
-		for (const def of Object.values(schema.$defs)) {
-			this.completeProperty(def as Schema)
-		}
-	}
+	// private _complete (schema: Schema): void {
+	// this.completeProperty(schema)
+	// for (const def of Object.values(schema.$defs)) {
+	// this.completeProperty(def as Schema)
+	// }
+	// }
 
-	private completeProperty (property: Schema):void {
-		if (property.type === undefined) {
-			property.type = PropertyType.string
-		}
-		if (property.properties) {
-			for (const p in property.properties) {
-				const child = property.properties[p] as Schema
-				this.completeProperty(child)
-			}
-		}
-	}
+	// private completeProperty (property: Schema):void {
+	// if (property.properties) {
+	// for (const p in property.properties) {
+	// const child = property.properties[p] as Schema
+	// this.completeProperty(child)
+	// }
+	// }
+	// }
 }
 
 export class FormatCollection {
@@ -111,27 +108,7 @@ export class CoreConstraintBuilder implements ConstraintBuilder {
 		if (valueConstraint) {
 			constraints.push(valueConstraint)
 		}
-		if ((property.minimum || property.maximum) && [PropertyType.integer, PropertyType.decimal, PropertyType.date, PropertyType.datetime, PropertyType.time].includes(property.type)) {
-			constraints.push(this.createMinMaxConstraint(property))
-		}
-		if (property.enum && [PropertyType.integer, PropertyType.string].includes(property.type)) {
-			constraints.push(this.createEnumConstraint(property))
-		}
-		if ([PropertyType.integer, PropertyType.decimal].includes(property.type)) {
-			if ((property.minLength || property.maxLength)) {
-				constraints.push(this.createMultipleOfConstraint(property))
-			}
-		} else if (property.type === PropertyType.string) {
-			if ((property.minLength || property.maxLength)) {
-				constraints.push(this.createMinMaxLengthConstraint(property))
-			}
-			if (property.format) {
-				constraints.push(this.createFormatConstraint(property))
-			}
-			if (property.pattern) {
-				constraints.push(this.createPatternConstraint(property))
-			}
-		} else if (property.type === PropertyType.object) {
+		if (property.type === PropertyType.object) {
 			if (property.required) {
 				constraints.push(this.createRequiredConstraint(property))
 			}
@@ -145,12 +122,35 @@ export class CoreConstraintBuilder implements ConstraintBuilder {
 			if ((property.uniqueItems)) {
 				constraints.push(this.createUniqueItemsConstraint(property))
 			}
+		} else {
+			if (property.minimum || property.maximum) {
+				constraints.push(this.createMinMaxConstraint(property))
+			}
+			if (property.enum) {
+				constraints.push(this.createEnumConstraint(property))
+			}
+			if ((property.minLength || property.maxLength)) {
+				constraints.push(this.createMultipleOfConstraint(property))
+			}
+			if ((property.minLength || property.maxLength)) {
+				constraints.push(this.createMinMaxLengthConstraint(property))
+			}
+			if (property.format) {
+				constraints.push(this.createFormatConstraint(property))
+			}
+			if (property.pattern) {
+				constraints.push(this.createPatternConstraint(property))
+			}
 		}
 		return constraints
 	}
 
-	private createTypeConstraint (property: Schema): FunctionConstraint | null {
+	private createTypeConstraint (property: Schema): FunctionConstraint | undefined {
 		let func:Function| undefined
+
+		if (property.type === undefined) {
+			return undefined
+		}
 		switch (property.type) {
 		case PropertyType.null:
 			func = (p:any) => p === null; break
@@ -174,7 +174,7 @@ export class CoreConstraintBuilder implements ConstraintBuilder {
 			func = (p:any) => Array.isArray(p); break
 		}
 		if (func === undefined) {
-			return null
+			return undefined
 		}
 		return {
 			message: `invalid type ${property.type}`,
@@ -467,49 +467,25 @@ export class SchemaCollection {
 		this.builder = builder
 	}
 
-	public add (source: Schema) : BuildedSchema {
-		if (!source.$id) {
-			throw Error('$id not defined in schema')
-		}
-		const schema = this.completer.complete(source)
-		const builded = this.builder.build(schema)
-		this.list[source.$id] = builded
-		return builded
-	}
-
-	public async get (uri: string) : Promise<BuildedSchema> {
-		const parts = uri.split('#')
-		let builded = this.list[parts[0]] as BuildedSchema
-		if (!builded) {
-			builded = await this.getExternal(parts[0])
-		}
-		if (parts.length === 1) {
-			return builded
-		} else if (parts.length === 2) {
-			return this.getInternal(builded, parts[1])
-		} else {
-			throw new Error(`${uri} invalid uri`)
-		}
-	}
-
-	public async solve (schema: string|Schema) : Promise<BuildedSchema> {
+	public async get (value: string|Schema) : Promise<BuildedSchema> {
 		let builded:BuildedSchema|undefined
-		if (typeof schema === 'string') {
-			builded = await this.get(schema)
+		if (typeof value === 'string') {
+			builded = await this.find(value)
 			if (builded === undefined) {
-				throw new Error(`Uri ${schema} not found`)
+				throw new Error(`Uri ${value} not found`)
 			}
 		} else {
-			if ((schema as Schema) === undefined) {
-				throw new Error('Schema parameter invalid')
+			if ((value as Schema) === undefined) {
+				throw new Error('Parameter value is invalid')
 			}
-			if (!schema.$id) {
-				throw new Error('Identifier $id of schema is invalid')
-			}
-			// If the schema exists, use the existing one.
-			builded = await this.get(schema.$id)
+			// get a key that uniquely identifies a schema
+			const key = value.$id ? value.$id : JSON.stringify(value)
+			// look for the schema in the cache list
+			builded = this.list[key] as BuildedSchema | undefined
 			if (builded === undefined) {
-				builded = this.add(schema)
+				// if it doesn't exist in cache, add it
+				builded = this.build(value)
+				this.list[key] = builded
 			}
 		}
 		return builded
@@ -517,35 +493,55 @@ export class SchemaCollection {
 
 	public async getByRef (root:BuildedSchema, parent: BuildedSchema, ref:string): Promise<BuildedSchema> {
 		if (ref.startsWith('#/$defs')) {
-			return this.getInternal(root, ref)
+			return this.findInternal(root, ref)
 		} else if (ref.startsWith('#')) {
-			return this.getInternal(parent, ref)
+			return this.findInternal(parent, ref)
 		} else if (ref.startsWith('http')) {
-			return await this.get(ref)
+			return await this.find(ref)
 		} else if (ref.startsWith('/')) {
 			if (!root.$id) {
 				throw Error('$id not defined in schema')
 			}
 			const uri = new URL(root.$id, ref).href
-			return await this.get(uri)
+			return await this.find(uri)
 		} else {
 			throw Error(`Ref: ${ref} is invalid`)
 		}
 	}
 
-	private async getExternal (uri: string) : Promise<BuildedSchema> {
+	public async find (uri: string) : Promise<BuildedSchema> {
+		if (Helper.isEmpty(uri)) {
+			throw Error('uri is empty')
+		}
+		const parts = uri.split('#')
+		const key = parts[0]
+		// look for the schema in the list that makes cache
+		let builded = this.list[key] as BuildedSchema | undefined
+		if (!builded) {
+			// if it is not in cache it looks for it externally
+			const schema = await this.findExternal(key)
+			builded = this.build(schema)
+			this.list[key] = builded
+		}
+		if (parts.length === 1) {
+			return builded
+		} else if (parts.length === 2) {
+			return this.findInternal(builded, parts[1])
+		} else {
+			throw new Error(`${uri} invalid uri`)
+		}
+	}
+
+	private async findExternal (uri: string) : Promise<Schema> {
 		const content = await Helper.get(uri)
 		const schema = Helper.tryParse(content) as Schema
 		if (!schema) {
 			throw Error(`The schema with the uri ${uri} was not found`)
 		}
-		if (schema.$id !== uri) {
-			throw Error(`Schema ${uri} not equal to ${schema.$id}`)
-		}
-		return this.add(schema)
+		return schema
 	}
 
-	private getInternal (property: BuildedSchema, ref:string):BuildedSchema {
+	private findInternal (property: BuildedSchema, ref:string):BuildedSchema {
 		if (!ref.startsWith('#')) {
 			throw Error(`${ref} invalid internal ref`)
 		}
@@ -566,6 +562,11 @@ export class SchemaCollection {
 		} else {
 			throw Error(`Invalid ${ref} ref`)
 		}
+	}
+
+	private build (schema: Schema): BuildedSchema {
+		const completed = this.completer.complete(schema)
+		return this.builder.build(completed)
 	}
 }
 
@@ -605,7 +606,7 @@ export class SchemaValidator {
 				errors.push(...propertyErrors)
 			}
 		}
-		return { errors: errors, isValid: errors.length === 0 }
+		return { errors: errors, valid: errors.length === 0 }
 	}
 
 	private async validateProperty (root: BuildedSchema, property: BuildedSchema, data: any, path = ''): Promise<ValidateError[]> {
