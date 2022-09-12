@@ -25,10 +25,9 @@
 		"to_develop": "grunt to_develop",
 		"release": "grunt release",
 		"doc": "grunt doc"
-	},	
-	"dependencies": {
 	},
 	"devDependencies": {
+		"@types/glob": "^8.0.0",
 		"@types/jest": "^27.0.1",
 		"@types/node": "^15.12.2",
 		"@types/yargs": "^17.0.8",
@@ -39,6 +38,7 @@
 		"eslint-plugin-import": "^2.25.4",
 		"eslint-plugin-node": "^11.1.0",
 		"eslint-plugin-promise": "^5.1.0",
+		"glob": "^8.0.3",
 		"grunt": "^1.5.3",
 		"grunt-contrib-clean": "^2.0.1",
 		"grunt-contrib-concat": "^1.0.1",

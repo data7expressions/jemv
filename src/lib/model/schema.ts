@@ -23,32 +23,16 @@ export interface PropertyNames {
 	minLength: number
 }
 
-export interface Contains {
-	type:PropertyType
-}
-
-export interface Schema {
-	$id?: string
-	$schema?: string
-	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=ref
-	$ref?: string
-	$extends?: string
-	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=defs
-	$defs: any
-
-	title?: string
-	name?: string
+export interface Rule {
 	type: PropertyType
 	enum?: string[]
-	items?: Schema
-	properties?: any
 	// Validation Keywords for Numeric Instances (number and integer)
 	// https://json-schema.org/draft/2020-12/json-schema-validation.html
 	// https://opis.io/json-schema/2.x/number.html
-	minimum?: any
-	maximum?: any
-	exclusiveMaximum?: boolean
-	exclusiveMinimum?: boolean
+	minimum?: number
+	maximum?: number
+	exclusiveMaximum?: number
+	exclusiveMinimum?: number
 	multipleOf:number
 	// Validation Keywords for Strings
 	// https://opis.io/json-schema/2.x/string.html
@@ -76,12 +60,27 @@ export interface Schema {
 	maxItems?: number
 	minItems?: number
 	uniqueItems?: boolean
-	contains?:Contains // TODO
-	maxContains?: number // TODO
-	minContains?: number // TODO
+	contains?:Rule | Boolean // In process
+	maxContains?: number // In process
+	minContains?: number // In process
 	prefixItems?: any // TODO
 	additionalItems?: any // TODO
 	unevaluatedItems?: any // TODO
+}
+export interface Schema extends Rule {
+	$id?: string
+	$schema?: string
+	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=ref
+	$ref?: string
+	$extends?: string
+	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=defs
+	$defs: any
+	title?: string
+	name?: string
+	type: PropertyType
+	enum?: string[]
+	items?: Schema
+	properties?: any
 }
 
 export interface Constraint {

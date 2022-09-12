@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Schema, Constraint, PropertyType, ValidateResult, ValidateError, BuildedSchema, ConstraintBuilder, FunctionConstraint, ConstraintValidator } from './../model/schema'
+import { Schema, Constraint, Rule, PropertyType, ValidateResult, ValidateError, BuildedSchema, ConstraintBuilder, FunctionConstraint, ConstraintValidator } from './../model/schema'
 import { Helper } from './helper'
 
 export class SchemaCompleter {
@@ -102,50 +102,53 @@ export class CoreConstraintBuilder implements ConstraintBuilder {
 		this.formats = formats
 	}
 
-	public build (property: Schema): Constraint[] {
+	public build (rule: Rule): Constraint[] {
+		return this.createConstraints(rule)
+	}
+
+	private createConstraints (property: Rule): FunctionConstraint[] {
 		const constraints: FunctionConstraint[] = []
 		const valueConstraint = this.createTypeConstraint(property)
 		if (valueConstraint) {
 			constraints.push(valueConstraint)
 		}
-		if (property.type === PropertyType.object) {
-			if (property.required) {
-				constraints.push(this.createRequiredConstraint(property))
-			}
-			if ((property.minProperties || property.maxProperties)) {
-				constraints.push(this.createMinMaxPropertiesConstraint(property))
-			}
-		} else if (property.type === PropertyType.array) {
-			if ((property.minProperties || property.maxProperties)) {
-				constraints.push(this.createMinMaxItemsConstraint(property))
-			}
-			if ((property.uniqueItems)) {
-				constraints.push(this.createUniqueItemsConstraint(property))
-			}
-		} else {
-			if (property.minimum || property.maximum) {
-				constraints.push(this.createMinMaxConstraint(property))
-			}
-			if (property.enum) {
-				constraints.push(this.createEnumConstraint(property))
-			}
-			if ((property.minLength || property.maxLength)) {
-				constraints.push(this.createMultipleOfConstraint(property))
-			}
-			if ((property.minLength || property.maxLength)) {
-				constraints.push(this.createMinMaxLengthConstraint(property))
-			}
-			if (property.format) {
-				constraints.push(this.createFormatConstraint(property))
-			}
-			if (property.pattern) {
-				constraints.push(this.createPatternConstraint(property))
-			}
+		if (property.required) {
+			constraints.push(this.createRequiredConstraint(property))
+		}
+		if ((property.minProperties !== undefined || property.maxProperties !== undefined)) {
+			constraints.push(this.createMinMaxPropertiesConstraint(property))
+		}
+		if ((property.minItems !== undefined || property.maxItems !== undefined)) {
+			constraints.push(this.createMinMaxItemsConstraint(property))
+		}
+		if ((property.uniqueItems)) {
+			constraints.push(this.createUniqueItemsConstraint(property))
+		}
+		if (property.minimum !== undefined || property.maximum !== undefined || property.exclusiveMinimum !== undefined || property.exclusiveMaximum !== undefined) {
+			constraints.push(this.createMinMaxConstraint(property))
+		}
+		if (property.enum) {
+			constraints.push(this.createEnumConstraint(property))
+		}
+		if (property.multipleOf !== undefined) {
+			constraints.push(this.createMultipleOfConstraint(property))
+		}
+		if ((property.minLength !== undefined || property.maxLength !== undefined)) {
+			constraints.push(this.createMinMaxLengthConstraint(property))
+		}
+		if (property.format) {
+			constraints.push(this.createFormatConstraint(property))
+		}
+		if (property.pattern) {
+			constraints.push(this.createPatternConstraint(property))
+		}
+		if (property.contains !== undefined || property.minContains !== undefined || property.maxContains !== undefined) {
+			constraints.push(this.createContainsConstraint(property))
 		}
 		return constraints
 	}
 
-	private createTypeConstraint (property: Schema): FunctionConstraint | undefined {
+	private createTypeConstraint (property: Rule): FunctionConstraint | undefined {
 		let func:Function| undefined
 
 		if (property.type === undefined) {
@@ -192,86 +195,132 @@ export class CoreConstraintBuilder implements ConstraintBuilder {
 		}
 	}
 
-	private createMinMaxConstraint (property: Schema): FunctionConstraint {
-		if (property.minimum && property.maximum && !property.exclusiveMinimum && !property.exclusiveMaximum) {
+	private createMinMaxConstraint (property: Rule): FunctionConstraint {
+		const min = property.minimum
+		const max = property.maximum
+		const exclusiveMinimum = property.exclusiveMinimum
+		const exclusiveMaximum = property.exclusiveMaximum
+		if (min !== undefined && max !== undefined) {
 			return {
-				message: `${property.name} outside the range form ${property.minimum} to ${property.maximum}`,
-				func: (p:any) => p > property.minimum && p < property.maximum
+				message: `outside the range form ${min} to ${max}`,
+				func: (p:any) => isNaN(p) || (p >= min && p <= max)
 			}
-		} else if (property.minimum && property.maximum && property.exclusiveMinimum && property.exclusiveMaximum) {
+		} else if (exclusiveMinimum !== undefined && exclusiveMaximum !== undefined) {
 			return {
-				message: `${property.name} outside the range form ${property.minimum} inclusive to ${property.maximum} inclusive`,
-				func: (p:any) => p >= property.minimum && p <= property.maximum
+				message: `outside the range form ${exclusiveMinimum} exclusive to ${exclusiveMaximum} exclusive`,
+				func: (p:any) => isNaN(p) || (p > exclusiveMinimum && p < exclusiveMaximum)
 			}
-		} else if (property.minimum && property.maximum && !property.exclusiveMinimum && property.exclusiveMaximum) {
+		} else if (min !== undefined && exclusiveMaximum !== undefined) {
 			return {
-				message: `${property.name} outside the range form ${property.minimum} to ${property.maximum} inclusive`,
-				func: (p:any) => p > property.minimum && p <= property.maximum
+				message: `outside the range form ${min} to ${exclusiveMaximum} exclusive`,
+				func: (p:any) => isNaN(p) || (p >= min && p < exclusiveMaximum)
 			}
-		} else if (property.minimum && property.maximum && property.exclusiveMinimum && !property.exclusiveMaximum) {
+		} else if (exclusiveMinimum !== undefined && max !== undefined) {
 			return {
-				message: `${property.name} outside the range form ${property.minimum} inclusive to ${property.maximum}`,
-				func: (p:any) => p >= property.minimum && p < property.maximum
+				message: `outside the range form ${exclusiveMinimum} exclusive to ${max}`,
+				func: (p:any) => isNaN(p) || (p > exclusiveMinimum && p <= max)
 			}
-		} else if (property.minimum && !property.exclusiveMinimum) {
+		} else if (min !== undefined) {
 			return {
-				message: `${property.name} is less or equal than ${property.minimum}`,
-				func: (p:any) => p >= property.minimum
+				message: `should be less or equal than ${min}`,
+				func: (p:any) => isNaN(p) || p >= min
 			}
-		} else if (property.minimum && property.exclusiveMinimum) {
+		} else if (exclusiveMinimum !== undefined) {
 			return {
-				message: `${property.name} is less than ${property.minimum}`,
-				func: (p:any) => p > property.minimum
+				message: `should be less than ${exclusiveMinimum}`,
+				func: (p:any) => isNaN(p) || p > exclusiveMinimum
 			}
-		} else if (property.maximum && !property.exclusiveMaximum) {
+		} else if (max !== undefined) {
 			return {
-				message: `${property.name} is greater or equal than ${property.maximum}`,
-				func: (p:any) => p <= property.maximum
+				message: `should be greater or equal than ${max}`,
+				func: (p:any) => isNaN(p) || p <= max
 			}
-		} else if (property.maximum && property.exclusiveMaximum) {
+		} else if (exclusiveMaximum !== undefined) {
 			return {
-				message: `${property.name} is greater than ${property.maximum}`,
-				func: (p:any) => p <= property.maximum
+				message: `should be greater than ${exclusiveMaximum}`,
+				func: (p:any) => isNaN(p) || p < exclusiveMaximum
 			}
 		}
-		throw new Error(`${property.name} constraint minimum or maximum undefined`)
+		throw new Error('constraint minimum or maximum undefined')
 	}
 
-	private createMultipleOfConstraint (property: Schema): FunctionConstraint {
+	private createMultipleOfConstraint (property: Rule): FunctionConstraint {
 		if (!property.multipleOf) {
-			throw new Error(`Enum not define in ${property.name}`)
+			throw new Error('multipleOf not define')
+		}
+		let func:Function
+		const multipleOf = property.multipleOf
+		if (Math.floor(multipleOf.valueOf()) === multipleOf.valueOf()) {
+			func = (p:number) => isNaN(p) || p % multipleOf === 0
+		} else {
+			// number with decimals
+			const decimals = multipleOf.toString().split('.')[1].length
+			const shift = Math.pow(10, decimals)
+			const multipleOfShift = multipleOf * shift
+			func = (p:number) => {
+				return isNaN(p) || (p * shift) % multipleOfShift === 0
+			}
 		}
 		return {
-			message: `${property.name}  is not multiple of ${property.multipleOf}`,
-			func: (p:number) => p % property.multipleOf === 0
+			message: `is not multiple of ${property.multipleOf}`,
+			func: func
 		}
 	}
 
-	private createMinMaxLengthConstraint (property: Schema): FunctionConstraint {
+	private createMinMaxLengthConstraint (property: Rule): FunctionConstraint {
+		// https://www.acuriousanimal.com/blog/20211205/javascript-handle-unicode
+		// https://stackoverflow.com/questions/48009201/how-to-get-the-unicode-code-point-for-a-character-in-javascript
 		const min = property.minLength
 		const max = property.maxLength
-		if (min && max) {
+		if (min !== undefined && max !== undefined) {
 			return {
-				message: `${property.name} outside the range of ${min} to ${max}`,
-				func: (p:string) => p.length >= min && p.length <= max
+				message: `outside the range of ${min} to ${max}`,
+				func: (p:string) => {
+					if (typeof p !== 'string') {
+						return true
+					}
+					if (p === undefined || p === null) {
+						return false
+					}
+					const length = Array.from(p).length
+					return length >= min && length <= max
+				}
 			}
-		} else if (min) {
+		} else if (min !== undefined) {
 			return {
-				message: `${property.name} is less than ${min}`,
-				func: (p:string) => p.length >= min
+				message: `should be less than ${min}`,
+				func: (p:string) => {
+					if (typeof p !== 'string') {
+						return true
+					}
+					if (p === undefined || p === null) {
+						return false
+					}
+					const length = Array.from(p).length
+					return length >= min
+				}
 			}
-		} else if (max) {
+		} else if (max !== undefined) {
 			return {
-				message: `${property.name} is greater than ${max}`,
-				func: (p:string) => p.length <= max
+				message: `should be greater than ${max}`,
+				func: (p:string) => {
+					if (typeof p !== 'string') {
+						return true
+					}
+					if (p === undefined || p === null) {
+						return false
+					}
+					const length = Array.from(p).length
+					return length <= max
+				}
 			}
 		}
-		throw new Error(`${property.name} constraint minLength or maxLength undefined`)
+		throw new Error('constraint minLength or maxLength undefined')
 	}
 
-	private createEnumConstraint (property: Schema): FunctionConstraint {
+	private createEnumConstraint (property: Rule): FunctionConstraint {
 		if (!property.enum) {
-			throw new Error(`Enum not define in ${property.name}`)
+			throw new Error('Enum not define')
 		}
 		let values:any[]
 		if (Array.isArray(property.enum)) {
@@ -283,41 +332,41 @@ export class CoreConstraintBuilder implements ConstraintBuilder {
 		// }
 		// values = Object.values(_enum.values)
 		} else {
-			throw new Error(`Invalid enum define in ${property.name}`)
+			throw new Error('Invalid enum define')
 		}
 		const showValues = values.join(',')
 		return {
-			message: `${property.name}  not in [${showValues}]`,
+			message: `not in [${showValues}]`,
 			func: (p:string) => values.includes(p)
 		}
 	}
 
-	private createFormatConstraint (property: Schema): FunctionConstraint {
+	private createFormatConstraint (property: Rule): FunctionConstraint {
 		if (!property.format) {
-			throw new Error(`Format not define in ${property.name}`)
+			throw new Error('Format not define')
 		}
 		const format = this.formats.get(property.format)
 		if (!format) {
-			throw new Error(`Format ${property.format} define in ${property.name} not found`)
+			throw new Error(`Format ${property.format} not found`)
 		}
 		return {
-			message: `${property.name} does not comply with the format ${property.format}`,
+			message: `does not comply with the format ${property.format}`,
 			func: (p:string) => format.test(p)
 		}
 	}
 
-	private createPatternConstraint (property: Schema): FunctionConstraint {
+	private createPatternConstraint (property: Rule): FunctionConstraint {
 		if (!property.pattern) {
-			throw new Error(`Pattern not define in ${property.name}`)
+			throw new Error('Pattern not define')
 		}
 		const regExp = new RegExp(property.pattern)
 		return {
-			message: `${property.name} does not comply with the format ${property.pattern}`,
+			message: `does not comply with the format ${property.pattern}`,
 			func: (p:string) => regExp.test(p)
 		}
 	}
 
-	private createRequiredConstraint (property: Schema): FunctionConstraint {
+	private createRequiredConstraint (property: Rule): FunctionConstraint {
 		return {
 			message: `the following fields are required [${property.required?.join(', ')}]`,
 			func: (p:any) => {
@@ -334,54 +383,67 @@ export class CoreConstraintBuilder implements ConstraintBuilder {
 		}
 	}
 
-	private createMinMaxPropertiesConstraint (property: Schema): FunctionConstraint {
+	private createMinMaxPropertiesConstraint (property: Rule): FunctionConstraint {
 		const min = property.minProperties
 		const max = property.maxProperties
-		if (min && max) {
+		if (min !== undefined && max !== undefined) {
 			return {
-				message: `${property.name} outside the range from ${min} inclusive to ${max} inclusive properties`,
+				message: `outside the range from ${min} inclusive to ${max} inclusive properties`,
 				func: (p:any) => {
+					if (typeof p !== 'object' || Array.isArray(p)) {
+						return true
+					}
 					const properties = Object.keys(p).length
 					return properties >= min && properties <= max
 				}
 			}
-		} else if (min) {
+		} else if (min !== undefined) {
 			return {
-				message: `${property.name} is less or equal than ${min}`,
-				func: (p:any) => Object.keys(p).length >= min
+				message: `should be less or equal than ${min}`,
+				func: (p:any) => {
+					if (typeof p !== 'object' || Array.isArray(p)) {
+						return true
+					}
+					return Object.keys(p).length >= min
+				}
 			}
-		} else if (max) {
+		} else if (max !== undefined) {
 			return {
-				message: `${property.name} is greater or equal than ${max}`,
-				func: (p:any) => Object.keys(p).length <= max
+				message: `should be greater or equal than ${max}`,
+				func: (p:any) => {
+					if (typeof p !== 'object' || Array.isArray(p)) {
+						return true
+					}
+					return Object.keys(p).length <= max
+				}
 			}
 		}
-		throw new Error(`${property.name} constraint minProperties or maxProperties undefined`)
+		throw new Error('constraint minProperties or maxProperties undefined')
 	}
 
-	private createMinMaxItemsConstraint (property: Schema): FunctionConstraint {
+	private createMinMaxItemsConstraint (property: Rule): FunctionConstraint {
 		const min = property.minItems
 		const max = property.maxItems
-		if (min && max) {
+		if (min !== undefined && max !== undefined) {
 			return {
-				message: `${property.name} outside the range from ${min} to ${max} items`,
-				func: (p:any[]) => p.length >= min && p.length <= max
+				message: `outside the range from ${min} to ${max} items`,
+				func: (p:any[]) => !Array.isArray(p) || (p.length >= min && p.length <= max)
 			}
-		} else if (min) {
+		} else if (min !== undefined) {
 			return {
-				message: `${property.name} is less or equal than ${min}`,
-				func: (p:any[]) => p.length >= min
+				message: `should be less or equal than ${min}`,
+				func: (p:any[]) => !Array.isArray(p) || p.length >= min
 			}
-		} else if (max) {
+		} else if (max !== undefined) {
 			return {
-				message: `${property.name} is greater or equal than ${max}`,
-				func: (p:any[]) => p.length <= max
+				message: `should be greater or equal than ${max}`,
+				func: (p:any[]) => !Array.isArray(p) || p.length <= max
 			}
 		}
-		throw new Error(`${property.name} constraint minItems or maxItems undefined`)
+		throw new Error('constraint minItems or maxItems undefined')
 	}
 
-	private createUniqueItemsConstraint (property: Schema): FunctionConstraint {
+	private createUniqueItemsConstraint (property: Rule): FunctionConstraint {
 		return {
 			message: `Does not comply with the format ${property.uniqueItems}`,
 			func: (p:any[]) => {
@@ -391,6 +453,80 @@ export class CoreConstraintBuilder implements ConstraintBuilder {
 				return p.filter(unique).length > 0
 			}
 		}
+	}
+
+	private createContainsConstraint (property: Rule): FunctionConstraint {
+		const min = property.minContains
+		const max = property.maxContains
+		if (property.contains === undefined) {
+			if (min !== undefined && max !== undefined) {
+				return {
+					message: `contains outside the range from ${min} to ${max} items`,
+					func: (p:any[]) => !Array.isArray(p) || p.length === 0 || (p.length >= min && p.length <= max)
+				}
+			} else if (min !== undefined) {
+				return {
+					message: `contains should be less or equal than ${min}`,
+					func: (p:any[]) => !Array.isArray(p) || p.length === 0 || p.length >= min
+				}
+			} else if (max !== undefined) {
+				return {
+					message: `contains should be greater or equal than ${max}`,
+					func: (p:any[]) => !Array.isArray(p) || p.length === 0 || p.length <= max
+				}
+			}
+		} else if (property.contains !== undefined && typeof property.contains === 'boolean') {
+			if (min !== undefined && max !== undefined) {
+				return {
+					message: `contains outside the range from ${min} to ${max} items`,
+					func: (p:any[]) => !Array.isArray(p) || (p.length >= min && p.length <= max)
+				}
+			} else if (min !== undefined) {
+				return {
+					message: `contains should be less or equal than ${min}`,
+					func: (p:any[]) => !Array.isArray(p) || p.length >= min
+				}
+			} else if (max !== undefined) {
+				return {
+					message: `contains should be greater or equal than ${max}`,
+					func: (p:any[]) => !Array.isArray(p) || p.length <= max
+				}
+			} else {
+				return {
+					message: 'must contain at least one item',
+					func: (p:any[]) => !Array.isArray(p) || p.length > 0
+				}
+			}
+		} else if (property.contains !== undefined) {
+			const rule = property.contains as Rule
+			if (rule) {
+				const constraints = this.createConstraints(rule)
+				const isValid = (p:any) => {
+					for (const constraint of constraints) {
+						if (!constraint.func(p)) {
+							return false
+						}
+					}
+					return true
+				}
+				return {
+					message: 'does not meet at least one of the contain rules',
+					func: (array:any[]) => {
+						if (!Array.isArray(array)) {
+							return true
+						}
+						// at least one item must meet the constraint
+						for (const p of array) {
+							if (isValid(p)) {
+								return true
+							}
+						}
+						return false
+					}
+				}
+			}
+		}
+		throw new Error('constraint minItems or maxItems undefined')
 	}
 }
 

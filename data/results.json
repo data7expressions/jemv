@@ -1,0 +1,23 @@
+[
+  {
+    "file": "./data/tests/maxProperties.json",
+    "cases": [
+      {
+        "case": "maxProperties = 0 means the object is empty",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "maxProperties": 0
+        },
+        "tests": [
+          {
+            "description": "one property is invalid",
+            "data": {
+              "foo": 1
+            },
+            "valid": false
+          }
+        ]
+      }
+    ]
+  }
+]
