@@ -1,20 +1,23 @@
 [
   {
-    "file": "./data/tests/maxProperties.json",
+    "file": "./data/tests/patternProperties.json",
     "cases": [
       {
-        "case": "maxProperties = 0 means the object is empty",
+        "case": "patternProperties with boolean schemas",
         "schema": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
-          "maxProperties": 0
+          "patternProperties": {
+            "f.*": true,
+            "b.*": false
+          }
         },
         "tests": [
           {
-            "description": "one property is invalid",
+            "description": "object with property matching schema true is valid",
             "data": {
               "foo": 1
             },
-            "valid": false
+            "valid": true
           }
         ]
       }

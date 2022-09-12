@@ -124,6 +124,28 @@ export class Helper {
 		return value
 	}
 
+	public static sortObject (source: any):any {
+		const target:any = {}
+		for (const key of Object.keys(source).sort()) {
+			target[key] = source[key]
+		}
+		return target
+	}
+
+	public static fromEntries (array: any[]):any {
+		if (!Array.isArray(array)) {
+			return {}
+		}
+		const obj:any = {}
+		for (const element of array) {
+			if (!Array.isArray(element) || element.length !== 2) {
+				continue
+			}
+			obj[element[0]] = element[1]
+		}
+		return obj
+	}
+
 	public static isObject (obj:any):boolean {
 		return obj && typeof obj === 'object' && obj.constructor === Object
 	}

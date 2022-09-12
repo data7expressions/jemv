@@ -3,6 +3,7 @@ export enum PropertyType {
 	null = 'null',
 	any = 'any',
 	boolean = 'boolean',
+	number = 'number',
 	integer = 'integer',
 	decimal = 'decimal',
 	string = 'string',
@@ -24,7 +25,7 @@ export interface PropertyNames {
 }
 
 export interface Rule {
-	type: PropertyType
+	type: PropertyType | PropertyType[]
 	enum?: string[]
 	// Validation Keywords for Numeric Instances (number and integer)
 	// https://json-schema.org/draft/2020-12/json-schema-validation.html
@@ -63,6 +64,7 @@ export interface Rule {
 	contains?:Rule | Boolean // In process
 	maxContains?: number // In process
 	minContains?: number // In process
+	const?:any // In process
 	prefixItems?: any // TODO
 	additionalItems?: any // TODO
 	unevaluatedItems?: any // TODO
