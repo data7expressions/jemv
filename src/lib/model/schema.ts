@@ -25,7 +25,11 @@ export interface PropertyNames {
 }
 
 export interface Rule {
-	type: PropertyType | PropertyType[]
+	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=ref
+	$ref?: string
+	items?: Rule
+	properties?: any
+	type?: PropertyType | PropertyType[]
 	enum?: string[]
 	// Validation Keywords for Numeric Instances (number and integer)
 	// https://json-schema.org/draft/2020-12/json-schema-validation.html
@@ -72,45 +76,25 @@ export interface Rule {
 export interface Schema extends Rule {
 	$id?: string
 	$schema?: string
-	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=ref
-	$ref?: string
 	$extends?: string
 	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=defs
 	$defs: any
 	title?: string
 	name?: string
-	type: PropertyType
-	enum?: string[]
-	items?: Schema
-	properties?: any
 }
 
-export interface Constraint {
+export interface IConstraint {
 	message: string
+	eval (data: any): boolean
 }
-
-export interface FunctionConstraint extends Constraint {
-	func: Function
-}
-export interface ConstraintBuilder
-{
-	build (property: Schema):Constraint[]
-}
-
-export interface ConstraintValidator
-{
-	apply (constraint: Constraint): boolean
-	validate (constraint: Constraint, data: any): boolean
-}
-
 export interface BuildedSchema {
 	$id?: string
 	$defs?: any
 	$ref?:string
-	type: PropertyType
+	type?: PropertyType | PropertyType[]
 	properties?: any
 	items?:BuildedSchema
-	constraints: Constraint[]
+	constraints: IConstraint[]
 }
 export interface ValidateError {
 	message:string
@@ -119,4 +103,30 @@ export interface ValidateError {
 export interface ValidateResult {
 	errors:ValidateError[]
 	valid: boolean
+}
+
+export interface IConstraintBuilder {
+	apply(rule: Rule):boolean
+	build(rule: Rule): IConstraint
+}
+export interface IConstraintFactory {
+	addConstraintBuilder (constraintBuilder:IConstraintBuilder):any
+	buildConstraints (rule: Rule):IConstraint[]
+}
+
+export interface ISchemaCompleter {
+	complete (source: Schema): Schema
+}
+export interface ISchemaCollection {
+	get (value: string|Schema) : Promise<BuildedSchema>
+	getByRef (root:BuildedSchema, parent: BuildedSchema, ref:string): Promise<BuildedSchema>
+	find (uri: string) : Promise<BuildedSchema>
+}
+
+export interface ISchemaBuilder {
+	build (schema: Schema): BuildedSchema
+}
+
+export interface ISchemaValidator {
+	validate (schema:BuildedSchema, data: any): Promise<ValidateResult>
 }

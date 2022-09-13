@@ -1,12 +1,20 @@
-import { ValidateResult, Schema, ConstraintBuilder, ConstraintValidator } from '../model/schema'
-import { FormatCollection, SchemaCompleter, SchemaBuilder, SchemaCollection, SchemaValidator, CoreConstraintBuilder, FunctionConstraintValidator } from './schema'
+import { ValidateResult, Schema, IConstraintBuilder, ISchemaCompleter, ISchemaBuilder, ISchemaCollection, ISchemaValidator, IConstraintFactory } from '../model/schema'
+import { FormatCollection } from './formatCollection'
+import {
+	TypeConstraintBuilder, MultipleOfConstraintBuilder, MinMaxPropertiesConstraintBuilder, MinMaxItemsConstraintBuilder,
+	UniqueItemsConstraintBuilder, MinMaxLengthConstraintBuilder, MinMaxConstraintBuilder, PrefixItemsConstraintBuilder,
+	RequiredConstraintBuilder, EnumConstraintBuilder, FormatConstraintBuilder, PatternConstraintBuilder, PatternPropertyConstraintBuilder,
+	ContainsConstraintBuilder, ConstConstraintBuilder
+} from './constraintBuilders'
+import { SchemaCompleter, SchemaBuilder, SchemaCollection, SchemaValidator } from './'
 
 export class Jemv {
 	private formats: FormatCollection
-	private completer: SchemaCompleter
-	private builder: SchemaBuilder
-	private schemas: SchemaCollection
-	private validator: SchemaValidator
+	private completer: ISchemaCompleter
+	private builder: ISchemaBuilder
+	private constraintFactory: IConstraintFactory
+	private schemas: ISchemaCollection
+	private validator: ISchemaValidator
 	constructor () {
 		this.formats = new FormatCollection()
 		this.formats.add('email', '^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$')
@@ -18,11 +26,26 @@ export class Jemv {
 		this.formats.add('datetime', '\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d\\.\\d+([+-][0-2]\\d:[0-5]\\d|Z)')
 		this.formats.add('time', '\\[0-2]\\d:[0-5]\\d:[0-5]\\d')
 		this.completer = new SchemaCompleter()
-		this.builder = new SchemaBuilder()
-		this.builder.add(new CoreConstraintBuilder(this.formats))
+		const schemaBuilder = new SchemaBuilder()
+		this.builder = schemaBuilder
+		this.constraintFactory = schemaBuilder
+		this.constraintFactory.addConstraintBuilder(new TypeConstraintBuilder(this.formats))
+		this.constraintFactory.addConstraintBuilder(new MultipleOfConstraintBuilder())
+		this.constraintFactory.addConstraintBuilder(new MinMaxPropertiesConstraintBuilder())
+		this.constraintFactory.addConstraintBuilder(new MinMaxItemsConstraintBuilder())
+		this.constraintFactory.addConstraintBuilder(new UniqueItemsConstraintBuilder())
+		this.constraintFactory.addConstraintBuilder(new MinMaxLengthConstraintBuilder())
+		this.constraintFactory.addConstraintBuilder(new MinMaxConstraintBuilder())
+		this.constraintFactory.addConstraintBuilder(new PrefixItemsConstraintBuilder(this.constraintFactory))
+		this.constraintFactory.addConstraintBuilder(new RequiredConstraintBuilder())
+		this.constraintFactory.addConstraintBuilder(new EnumConstraintBuilder())
+		this.constraintFactory.addConstraintBuilder(new PatternConstraintBuilder())
+		this.constraintFactory.addConstraintBuilder(new PatternPropertyConstraintBuilder(this.constraintFactory))
+		this.constraintFactory.addConstraintBuilder(new ContainsConstraintBuilder(this.constraintFactory))
+		this.constraintFactory.addConstraintBuilder(new FormatConstraintBuilder(this.formats))
+		this.constraintFactory.addConstraintBuilder(new ConstConstraintBuilder())
 		this.schemas = new SchemaCollection(this.completer, this.builder)
 		this.validator = new SchemaValidator(this.schemas)
-		this.validator.add(new FunctionConstraintValidator())
 	}
 
 	private static _instance: Jemv
@@ -37,12 +60,8 @@ export class Jemv {
 		this.formats.add(key, pattern)
 	}
 
-	public addConstraintBuilder (constraintBuilder:ConstraintBuilder) {
-		this.builder.add(constraintBuilder)
-	}
-
-	public addConstraintValidator (constraintValidator:ConstraintValidator) {
-		this.validator.add(constraintValidator)
+	public addConstraintBuilder (constraintBuilder:IConstraintBuilder) {
+		this.constraintFactory.addConstraintBuilder(constraintBuilder)
 	}
 
 	public async validate (schema: string|Schema, data:any) : Promise<ValidateResult> {

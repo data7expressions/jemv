@@ -1,3 +1,6 @@
 export * from './helper'
 export * from './jemv'
-export * from './schema'
+export * from './schemaBuilder'
+export * from './schemaCollection'
+export * from './schemaCompleter'
+export * from './schemaValidator'
