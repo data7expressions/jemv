@@ -1,12 +1,12 @@
-import { ValidateResult, Schema, IConstraintBuilder, ISchemaCompleter, ISchemaBuilder, ISchemaCollection, ISchemaValidator, IConstraintFactory } from '../model/schema'
+import { EvalResult, Schema, IConstraintBuilder, ISchemaCompleter, ISchemaBuilder, ISchemaCollection, ISchemaValidator, IConstraintFactory } from '../model/schema'
 import { FormatCollection } from './formatCollection'
 import {
 	TypeConstraintBuilder, MultipleOfConstraintBuilder, MinMaxPropertiesConstraintBuilder, MinMaxItemsConstraintBuilder,
 	UniqueItemsConstraintBuilder, MinMaxLengthConstraintBuilder, MinMaxConstraintBuilder, PrefixItemsConstraintBuilder,
 	RequiredConstraintBuilder, EnumConstraintBuilder, FormatConstraintBuilder, PatternConstraintBuilder, PatternPropertyConstraintBuilder,
-	ContainsConstraintBuilder, ConstConstraintBuilder
+	ContainsConstraintBuilder, ConstConstraintBuilder, BooleanSchemaConstraintBuilder
 } from './constraintBuilders'
-import { SchemaCompleter, SchemaBuilder, SchemaCollection, SchemaValidator } from './'
+import { SchemaCompleter, SchemaBuilder, SchemaCollection, SchemaValidator, ConstraintFactory } from './'
 
 export class Jemv {
 	private formats: FormatCollection
@@ -26,24 +26,24 @@ export class Jemv {
 		this.formats.add('datetime', '\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d\\.\\d+([+-][0-2]\\d:[0-5]\\d|Z)')
 		this.formats.add('time', '\\[0-2]\\d:[0-5]\\d:[0-5]\\d')
 		this.completer = new SchemaCompleter()
-		const schemaBuilder = new SchemaBuilder()
-		this.builder = schemaBuilder
-		this.constraintFactory = schemaBuilder
-		this.constraintFactory.addConstraintBuilder(new TypeConstraintBuilder(this.formats))
-		this.constraintFactory.addConstraintBuilder(new MultipleOfConstraintBuilder())
-		this.constraintFactory.addConstraintBuilder(new MinMaxPropertiesConstraintBuilder())
-		this.constraintFactory.addConstraintBuilder(new MinMaxItemsConstraintBuilder())
-		this.constraintFactory.addConstraintBuilder(new UniqueItemsConstraintBuilder())
-		this.constraintFactory.addConstraintBuilder(new MinMaxLengthConstraintBuilder())
-		this.constraintFactory.addConstraintBuilder(new MinMaxConstraintBuilder())
-		this.constraintFactory.addConstraintBuilder(new PrefixItemsConstraintBuilder(this.constraintFactory))
-		this.constraintFactory.addConstraintBuilder(new RequiredConstraintBuilder())
-		this.constraintFactory.addConstraintBuilder(new EnumConstraintBuilder())
-		this.constraintFactory.addConstraintBuilder(new PatternConstraintBuilder())
-		this.constraintFactory.addConstraintBuilder(new PatternPropertyConstraintBuilder(this.constraintFactory))
-		this.constraintFactory.addConstraintBuilder(new ContainsConstraintBuilder(this.constraintFactory))
-		this.constraintFactory.addConstraintBuilder(new FormatConstraintBuilder(this.formats))
-		this.constraintFactory.addConstraintBuilder(new ConstConstraintBuilder())
+		this.constraintFactory = new ConstraintFactory()
+		this.builder = new SchemaBuilder(this.constraintFactory)
+		this.constraintFactory.addBuilder(new TypeConstraintBuilder(this.formats))
+		this.constraintFactory.addBuilder(new MultipleOfConstraintBuilder())
+		this.constraintFactory.addBuilder(new MinMaxPropertiesConstraintBuilder())
+		this.constraintFactory.addBuilder(new MinMaxItemsConstraintBuilder())
+		this.constraintFactory.addBuilder(new UniqueItemsConstraintBuilder())
+		this.constraintFactory.addBuilder(new MinMaxLengthConstraintBuilder())
+		this.constraintFactory.addBuilder(new MinMaxConstraintBuilder())
+		this.constraintFactory.addBuilder(new PrefixItemsConstraintBuilder(this.constraintFactory))
+		this.constraintFactory.addBuilder(new RequiredConstraintBuilder())
+		this.constraintFactory.addBuilder(new EnumConstraintBuilder())
+		this.constraintFactory.addBuilder(new PatternConstraintBuilder())
+		this.constraintFactory.addBuilder(new PatternPropertyConstraintBuilder(this.constraintFactory))
+		this.constraintFactory.addBuilder(new ContainsConstraintBuilder(this.constraintFactory))
+		this.constraintFactory.addBuilder(new FormatConstraintBuilder(this.formats))
+		this.constraintFactory.addBuilder(new ConstConstraintBuilder())
+		this.constraintFactory.addBuilder(new BooleanSchemaConstraintBuilder())
 		this.schemas = new SchemaCollection(this.completer, this.builder)
 		this.validator = new SchemaValidator(this.schemas)
 	}
@@ -61,10 +61,10 @@ export class Jemv {
 	}
 
 	public addConstraintBuilder (constraintBuilder:IConstraintBuilder) {
-		this.constraintFactory.addConstraintBuilder(constraintBuilder)
+		this.constraintFactory.addBuilder(constraintBuilder)
 	}
 
-	public async validate (schema: string|Schema, data:any) : Promise<ValidateResult> {
+	public async validate (schema: string|Schema, data:any) : Promise<EvalResult> {
 		const builded = await this.schemas.get(schema)
 		return this.validator.validate(builded, data)
 	}

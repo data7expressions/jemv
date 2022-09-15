@@ -1,5 +1,5 @@
 /* eslint-disable no-unexpected-multiline */
-import { jemv, Helper } from '../../lib'
+import { jemv } from '../../lib'
 
 (async () => {
 	try {
@@ -24,9 +24,8 @@ import { jemv, Helper } from '../../lib'
 		const schemaUri = 'https://raw.githubusercontent.com/FlavioLionelRita/test-data/main/json-schema/arrays.schema.json'
 		const validateInputResult = await jemv.validate(schemaUri, data)
 		if (!validateInputResult.valid) {
-			await Helper.writeFile('./src/dev/lab/validate-input-errors.json', JSON.stringify(validateInputResult.errors, null, 2))
+			console.error(`error: ${validateInputResult.message}`)
 		}
-		console.log(`error: ${validateInputResult.errors.length}`)
 	} catch (error:any) {
 		console.error(error)
 	}

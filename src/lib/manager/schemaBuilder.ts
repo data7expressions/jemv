@@ -1,35 +1,32 @@
-import { ISchemaBuilder, Schema, Rule, BuildedSchema, IConstraint, IConstraintBuilder, IConstraintFactory, PropertyType } from './../model/schema'
+import { ISchemaBuilder, Schema, BuildedSchema, IConstraintFactory } from './../model/schema'
 
-export class SchemaBuilder implements IConstraintFactory, ISchemaBuilder {
-	private constraintBuilders:IConstraintBuilder[] = []
-
-	public addConstraintBuilder (constraintBuilder:IConstraintBuilder) {
-		this.constraintBuilders.push(constraintBuilder)
-	}
-
-	public buildConstraints (rule: Rule):IConstraint[] {
-		const constraints:IConstraint[] = []
-		for (const constraintBuilder of this.constraintBuilders) {
-			if (constraintBuilder.apply(rule)) {
-				constraints.push(constraintBuilder.build(rule))
-			}
-		}
-		return constraints
+export class SchemaBuilder implements ISchemaBuilder {
+	private constraintFactory: IConstraintFactory
+	constructor (constraintFactory: IConstraintFactory) {
+		this.constraintFactory = constraintFactory
 	}
 
 	public build (schema: Schema): BuildedSchema {
-		if (!schema) {
+		if (schema === undefined || schema === null) {
 			throw new Error('schema is empty')
 		}
-		const builded = this.createSchema(schema)
-		this.createConstraints(builded, schema, schema)
-		this.addDef(builded, schema)
-		return builded
+		if (typeof schema === 'object') {
+			const builded = this.createSchema(schema)
+			this.createConstraints(builded, schema, schema)
+			this.addDef(builded, schema)
+			return builded
+		} else if (typeof schema === 'boolean') {
+			const builded = this.createBooleanSchema()
+			this.createConstraints(builded, schema, schema)
+			return builded
+		} else {
+			throw new Error(`Schema ${schema}  is invalid`)
+		}
 	}
 
 	private addDef (builded:BuildedSchema, schema: Schema):void {
+		builded.$defs = {}
 		if (schema.$defs) {
-			builded.$defs = {}
 			for (const entry of Object.entries(schema.$defs)) {
 				const name = entry[0]
 				const child = entry[1] as Schema
@@ -40,37 +37,30 @@ export class SchemaBuilder implements IConstraintFactory, ISchemaBuilder {
 		}
 	}
 
+	private createBooleanSchema ():BuildedSchema {
+		return { }
+	}
+
 	private createSchema (schema: Schema):BuildedSchema {
-		return { $id: schema.$id, type: schema.type, $ref: schema.$ref, $defs: schema.$defs, properties: {}, constraints: [] }
+		return { $id: schema.$id, type: schema.type, $ref: schema.$ref, $defs: schema.$defs, properties: {} }
 	}
 
-	private createRule (rule: Rule):BuildedSchema {
-		return { type: rule.type, $ref: rule.$ref, properties: {}, constraints: [] }
-	}
-
-	private createConstraints (builded:BuildedSchema, schema: Schema, rule: Rule):void {
-		const constraints = this.buildConstraints(rule)
-		if (constraints.length > 0) {
-			builded.constraints.push(...constraints)
+	private createConstraints (builded:BuildedSchema, schema: Schema, property: Schema):void {
+		builded.constraint = this.constraintFactory.build(property)
+		// iterate through the child properties
+		if (property.properties && typeof property.properties === 'object') {
+			for (const name in property.properties) {
+				const child = property.properties[name] as Schema
+				const buildedChild = this.createSchema(child)
+				this.createConstraints(buildedChild, schema, child)
+				builded.properties[name] = buildedChild
+			}
 		}
-
-		if (rule.type === PropertyType.object) {
-			// iterate through the child properties
-			if (rule.properties) {
-				for (const name in rule.properties) {
-					const child = rule.properties[name] as Rule
-					const buildedChild = this.createRule(child)
-					this.createConstraints(buildedChild, schema, child)
-					builded.properties[name] = buildedChild
-				}
-			}
-		} else if (rule.type === PropertyType.array) {
-			// iterate through the items properties
-			if (rule.items) {
-				const buildedItems = this.createRule(rule.items)
-				this.createConstraints(buildedItems, schema, rule.items)
-				builded.items = buildedItems
-			}
+		// iterate through the items properties
+		if (property.items && typeof property.items === 'object') {
+			const buildedItems = this.createSchema(property.items)
+			this.createConstraints(buildedItems, schema, property.items)
+			builded.items = buildedItems
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { ISchemaValidator, BuildedSchema, PropertyType, ValidateResult, ValidateError, ISchemaCollection } from './../model/schema'
+import { ISchemaValidator, BuildedSchema, PropertyType, ValidationError, ValidationResult, ISchemaCollection } from './../model/schema'
 
 export class SchemaValidator implements ISchemaValidator {
 	private schemas: ISchemaCollection
@@ -7,25 +7,28 @@ export class SchemaValidator implements ISchemaValidator {
 		this.schemas = schemas
 	}
 
-	public async validate (schema:BuildedSchema, data: any): Promise<ValidateResult> {
-		const errors:ValidateError[] = []
+	public async validate (schema:BuildedSchema, data: any): Promise<ValidationResult> {
+		const errors:ValidationError[] = []
 		if (data === undefined) {
 			errors.push({ message: 'data is empty', path: '.' })
 		} else {
-			const propertyErrors = await this.validateProperty(schema, schema, data)
-			if (propertyErrors.length > 0) {
-				errors.push(...propertyErrors)
+			const childErrors = await this.validateProperty(schema, schema, data)
+			if (childErrors.length > 0) {
+				errors.push(...childErrors)
 			}
 		}
-		return { errors: errors, valid: errors.length === 0 }
+		return { valid: errors.length === 0, errors: errors }
 	}
 
-	private async validateProperty (root: BuildedSchema, property: BuildedSchema, data: any, path = ''): Promise<ValidateError[]> {
-		const errors:ValidateError[] = []
-		const propertyErrors = this.validateConstraints(property, path, data)
-		if (propertyErrors.length) {
-			errors.push(...propertyErrors)
+	private async validateProperty (root: BuildedSchema, property: BuildedSchema, data: any, path = ''): Promise<ValidationError[]> {
+		const errors:ValidationError[] = []
+		if (property.constraint) {
+			const result = property.constraint.eval(data)
+			if (!result.valid) {
+				errors.push({ path: path, message: result.message as string })
+			}
 		}
+
 		if (property.type === PropertyType.object && property.properties) {
 			for (const entry of Object.entries(property.properties)) {
 				const name = entry[0]
@@ -38,7 +41,7 @@ export class SchemaValidator implements ISchemaValidator {
 						throw new Error(`Schema not found in ${childPath}`)
 					}
 					const childErrors = await this.validateProperty(property, child, value, childPath)
-					if (childErrors.length) {
+					if (childErrors.length > 0) {
 						errors.push(...childErrors)
 					}
 				}
@@ -74,15 +77,15 @@ export class SchemaValidator implements ISchemaValidator {
 		}
 	}
 
-	private validateConstraints (source: BuildedSchema, path:string, data: any): ValidateError[] {
-		const errors:ValidateError[] = []
-		if (source.constraints) {
-			for (const constraint of source.constraints) {
-				if (!constraint.eval(data)) {
-					errors.push({ path: path, message: constraint.message })
-				}
-			}
-		}
-		return errors
-	}
+	// private validateConstraints (source: BuildedSchema, path:string, data: any): ValidateError[] {
+	// const errors:ValidateError[] = []
+	// if (source.constraint) {
+	// const result = source.constraint.eval(data)
+	// if (!result.valid) {
+	// errors.push({ path: path, message: result.message as string })
+	// }
+
+	// }
+	// return errors
+	// }
 }

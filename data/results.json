@@ -1,23 +1,36 @@
 [
   {
-    "file": "./data/tests/patternProperties.json",
+    "file": "./data/tests/properties.json",
     "cases": [
       {
-        "case": "patternProperties with boolean schemas",
+        "case": "properties, patternProperties, additionalProperties interaction",
         "schema": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "foo": {
+              "type": "array",
+              "maxItems": 3
+            },
+            "bar": {
+              "type": "array"
+            }
+          },
           "patternProperties": {
-            "f.*": true,
-            "b.*": false
+            "f.o": {
+              "minItems": 2
+            }
+          },
+          "additionalProperties": {
+            "type": "integer"
           }
         },
         "tests": [
           {
-            "description": "object with property matching schema true is valid",
+            "description": "additionalProperty invalidates others",
             "data": {
-              "foo": 1
+              "quux": "foo"
             },
-            "valid": true
+            "valid": false
           }
         ]
       }
