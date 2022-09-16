@@ -1,4 +1,4 @@
-import { EvalResult, Schema, IConstraintBuilder } from './model/schema'
+import { ValidationResult, Schema, IConstraintBuilder } from './model/schema'
 import { Jemv } from './manager/jemv'
 export * from './model/schema'
 export * from './manager'
@@ -13,6 +13,6 @@ export const addConstraintBuilder = (constraintBuilder:IConstraintBuilder) => {
 	jemv.addConstraintBuilder(constraintBuilder)
 }
 
-export const validate = async (schema: string|Schema, data:any) : Promise<EvalResult> => {
+export const validate = async (schema: string|Schema, data:any) : Promise<ValidationResult> => {
 	return jemv.validate(schema, data)
 }

@@ -3,11 +3,10 @@ import { Schema, BuildedSchema, ISchemaCompleter, ISchemaBuilder } from './../mo
 import { Helper } from './helper'
 
 export class SchemaCollection {
-	private list:any
+	private buildedList:any = {}
 	private completer: ISchemaCompleter
 	private builder: ISchemaBuilder
 	constructor (completer: ISchemaCompleter, builder: ISchemaBuilder) {
-		this.list = {}
 		this.completer = completer
 		this.builder = builder
 	}
@@ -26,17 +25,23 @@ export class SchemaCollection {
 			// get a key that uniquely identifies a schema
 			const key = value.$id ? value.$id : JSON.stringify(value)
 			// look for the schema in the cache list
-			builded = this.list[key] as BuildedSchema | undefined
+			builded = this.buildedList[key] as BuildedSchema | undefined
 			if (builded === undefined) {
 				// if it doesn't exist in cache, add it
-				builded = this.build(value)
-				this.list[key] = builded
+				builded = await this.build(value)
+				this.buildedList[key] = builded
 			}
 		}
 		return builded
 	}
 
-	public async getByRef (root:BuildedSchema, parent: BuildedSchema, ref:string): Promise<BuildedSchema> {
+	public async getByRef (root:Schema, parent: Schema, ref:string): Promise<BuildedSchema> {
+		const rootBuilded = await this.get(root)
+		const parentBuilded = await this.get(parent)
+		return this._getByRef(rootBuilded, parentBuilded, ref)
+	}
+
+	public async _getByRef (root:BuildedSchema, parent: BuildedSchema, ref:string): Promise<BuildedSchema> {
 		if (ref.startsWith('#/$defs')) {
 			return this.findInternal(root, ref)
 		} else if (ref.startsWith('#')) {
@@ -61,12 +66,12 @@ export class SchemaCollection {
 		const parts = uri.split('#')
 		const key = parts[0]
 		// look for the schema in the list that makes cache
-		let builded = this.list[key] as BuildedSchema | undefined
+		let builded = this.buildedList[key] as BuildedSchema | undefined
 		if (!builded) {
 			// if it is not in cache it looks for it externally
 			const schema = await this.findExternal(key)
-			builded = this.build(schema)
-			this.list[key] = builded
+			builded = await this.build(schema)
+			this.buildedList[key] = builded
 		}
 		if (parts.length === 1) {
 			return builded
@@ -109,7 +114,7 @@ export class SchemaCollection {
 		}
 	}
 
-	private build (schema: Schema): BuildedSchema {
+	private async build (schema: Schema): Promise<BuildedSchema> {
 		const completed = this.completer.complete(schema)
 		return this.builder.build(completed)
 	}

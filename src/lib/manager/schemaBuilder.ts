@@ -6,32 +6,31 @@ export class SchemaBuilder implements ISchemaBuilder {
 		this.constraintFactory = constraintFactory
 	}
 
-	public build (schema: Schema): BuildedSchema {
+	public async build (schema: Schema): Promise<BuildedSchema> {
 		if (schema === undefined || schema === null) {
 			throw new Error('schema is empty')
 		}
+		let builded:BuildedSchema
 		if (typeof schema === 'object') {
-			const builded = this.createSchema(schema)
-			this.createConstraints(builded, schema, schema)
+			builded = this.createSchema(schema)
 			this.addDef(builded, schema)
-			return builded
 		} else if (typeof schema === 'boolean') {
-			const builded = this.createBooleanSchema()
-			this.createConstraints(builded, schema, schema)
-			return builded
+			builded = this.createBooleanSchema()
 		} else {
 			throw new Error(`Schema ${schema}  is invalid`)
 		}
+		builded.constraint = await this.constraintFactory.build(schema, schema, schema)
+		return builded
 	}
 
-	private addDef (builded:BuildedSchema, schema: Schema):void {
+	private async addDef (builded:BuildedSchema, schema: Schema): Promise<void> {
 		builded.$defs = {}
 		if (schema.$defs) {
 			for (const entry of Object.entries(schema.$defs)) {
 				const name = entry[0]
 				const child = entry[1] as Schema
 				const buildedChild = this.createSchema(child)
-				this.createConstraints(buildedChild, schema, child)
+				buildedChild.constraint = await this.constraintFactory.build(schema, schema, child)
 				builded.$defs[name] = buildedChild
 			}
 		}
@@ -42,25 +41,26 @@ export class SchemaBuilder implements ISchemaBuilder {
 	}
 
 	private createSchema (schema: Schema):BuildedSchema {
-		return { $id: schema.$id, type: schema.type, $ref: schema.$ref, $defs: schema.$defs, properties: {} }
+		return { $id: schema.$id, $defs: schema.$defs }
 	}
 
-	private createConstraints (builded:BuildedSchema, schema: Schema, property: Schema):void {
-		builded.constraint = this.constraintFactory.build(property)
-		// iterate through the child properties
-		if (property.properties && typeof property.properties === 'object') {
-			for (const name in property.properties) {
-				const child = property.properties[name] as Schema
-				const buildedChild = this.createSchema(child)
-				this.createConstraints(buildedChild, schema, child)
-				builded.properties[name] = buildedChild
-			}
-		}
-		// iterate through the items properties
-		if (property.items && typeof property.items === 'object') {
-			const buildedItems = this.createSchema(property.items)
-			this.createConstraints(buildedItems, schema, property.items)
-			builded.items = buildedItems
-		}
-	}
+// private createConstraints (builded:BuildedSchema, schema: Schema, property: Schema):void {
+// builded.constraint = this.constraintFactory.build(property)
+// // iterate through the child properties
+// if (property.properties && typeof property.properties === 'object') {
+// builded.properties = {}
+// for (const name in property.properties) {
+// const child = property.properties[name] as Schema
+// const buildedChild = this.createSchema(child)
+// this.createConstraints(buildedChild, schema, child)
+// builded.properties[name] = buildedChild
+// }
+// }
+// // iterate through the items properties
+// if (property.items && typeof property.items === 'object') {
+// const buildedItems = this.createSchema(property.items)
+// this.createConstraints(buildedItems, schema, property.items)
+// builded.items = buildedItems
+// }
+// }
 }

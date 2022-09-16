@@ -1,4 +1,4 @@
-import { EvalResult, Schema, IConstraintBuilder, ISchemaCompleter, ISchemaBuilder, ISchemaCollection, ISchemaValidator, IConstraintFactory } from '../model/schema'
+import { EvalError, ValidationResult, Schema, IConstraintBuilder, ISchemaCompleter, ISchemaBuilder, ISchemaCollection, ISchemaValidator, IConstraintFactory } from '../model/schema'
 import { FormatCollection } from './formatCollection'
 import {
 	TypeConstraintBuilder, MultipleOfConstraintBuilder, MinMaxPropertiesConstraintBuilder, MinMaxItemsConstraintBuilder,
@@ -6,7 +6,7 @@ import {
 	RequiredConstraintBuilder, EnumConstraintBuilder, FormatConstraintBuilder, PatternConstraintBuilder, PatternPropertyConstraintBuilder,
 	ContainsConstraintBuilder, ConstConstraintBuilder, BooleanSchemaConstraintBuilder, IfConstraintBuilder
 } from './constraintBuilders'
-import { SchemaCompleter, SchemaBuilder, SchemaCollection, SchemaValidator, ConstraintFactory } from './'
+import { SchemaCompleter, SchemaBuilder, SchemaCollection, ConstraintFactory } from './'
 
 export class Jemv {
 	private formats: FormatCollection
@@ -14,14 +14,12 @@ export class Jemv {
 	private builder: ISchemaBuilder
 	private constraintFactory: IConstraintFactory
 	private schemas: ISchemaCollection
-	private validator: ISchemaValidator
 	constructor () {
 		this.formats = new FormatCollection()
 		this.completer = new SchemaCompleter()
 		this.constraintFactory = new ConstraintFactory()
 		this.builder = new SchemaBuilder(this.constraintFactory)
 		this.schemas = new SchemaCollection(this.completer, this.builder)
-		this.validator = new SchemaValidator(this.schemas)
 		this._addFormats()
 		this._addConstraintsBuilder()
 	}
@@ -89,8 +87,17 @@ export class Jemv {
 		this.constraintFactory.addBuilder(constraintBuilder)
 	}
 
-	public async validate (schema: string|Schema, data:any) : Promise<EvalResult> {
+	public async validate (schema: string|Schema, data:any) : Promise<ValidationResult> {
 		const builded = await this.schemas.get(schema)
-		return this.validator.validate(builded, data)
+		const errors:EvalError[] = []
+		if (data === undefined) {
+			errors.push({ path: '.', message: 'data is empty' })
+		} else if (builded.constraint) {
+			const childErrors = builded.constraint.eval(data, '.')
+			if (childErrors.length > 0) {
+				errors.push(...childErrors)
+			}
+		}
+		return { valid: errors.length === 0, errors: errors }
 	}
 }

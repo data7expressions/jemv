@@ -1,13 +1,13 @@
-import { IConstraint, EvalResult } from '../model/schema'
+import { IConstraint, EvalError } from '../model/schema'
 
 export class FunctionConstraint implements IConstraint {
-	private func: (value:any) => EvalResult
-	constructor (func: (value:any) => EvalResult) {
+	private func: (value:any, path:string) => EvalError[]
+	constructor (func: (value:any, path:string) => EvalError[]) {
 		this.func = func
 	}
 
-	public eval (value:any) : EvalResult {
-		return this.func(value)
+	public eval (value:any, path:string) : EvalError[] {
+		return this.func(value, path)
 	}
 }
 
@@ -17,13 +17,14 @@ export class AndConstraint implements IConstraint {
 		this.constraints = constraints
 	}
 
-	public eval (value:any): EvalResult {
+	public eval (value:any, path:string): EvalError[] {
+		const errors:EvalError[] = []
 		for (const constraint of this.constraints) {
-			const result = constraint.eval(value)
-			if (!result.valid) {
-				return result
+			const childErrors = constraint.eval(value, path)
+			if (childErrors.length > 0) {
+				errors.push(...childErrors)
 			}
 		}
-		return { valid: true }
+		return errors
 	}
 }

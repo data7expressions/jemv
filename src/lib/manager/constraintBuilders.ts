@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Rule, IConstraint, IConstraintBuilder, IConstraintFactory, PropertyType, EvalResult } from './../model/schema'
+import { Schema, Rule, IConstraint, IConstraintBuilder, IConstraintFactory, ISchemaCollection, PropertyType, EvalError } from './../model/schema'
 import { FormatCollection } from './formatCollection'
 import { FunctionConstraint } from './constraint'
 import { Helper } from './helper'
@@ -14,36 +14,36 @@ export class TypeConstraintBuilder implements IConstraintBuilder {
 		return rule.type !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (rule.type === undefined) {
 			throw new Error('type not define')
 		}
-		let func:(value:any) => EvalResult
+		let func:(value:any, path:string) => EvalError[]
 		if (typeof rule.type === 'string') {
 			switch (rule.type) {
 			case PropertyType.null:
-				func = (value:any) : EvalResult => {
-					return { valid: value === null, message: `invalid type ${rule.type}` }
+				func = (value:any, path:string) : EvalError[] => {
+					return value === null ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.boolean:
-				func = (value:any) : EvalResult => {
-					return { valid: value !== null && typeof value === 'boolean', message: `invalid type ${rule.type}` }
+				func = (value:any, path:string) : EvalError[] => {
+					return value !== null && typeof value === 'boolean' ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.string:
-				func = (value:any) : EvalResult => {
-					return { valid: value !== null && typeof value === 'string', message: `invalid type ${rule.type}` }
+				func = (value:any, path:string) : EvalError[] => {
+					return value !== null && typeof value === 'string' ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.integer:
-				func = (value:any) : EvalResult => {
-					return { valid: value !== null && Number.isInteger(value), message: `invalid type ${rule.type}` }
+				func = (value:any, path:string) : EvalError[] => {
+					return value !== null && Number.isInteger(value) ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.decimal:
-				func = (value:any) : EvalResult => {
-					return { valid: value !== null && !isNaN(value), message: `invalid type ${rule.type}` }
+				func = (value:any, path:string) : EvalError[] => {
+					return value !== null && !isNaN(value) ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.number:
-				func = (value:any) : EvalResult => {
-					return { valid: value !== null && typeof value === 'number', message: `invalid type ${rule.type}` }
+				func = (value:any, path:string) : EvalError[] => {
+					return value !== null && typeof value === 'number' ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.date:
 				func = this.formatDatetime('date'); break
@@ -52,45 +52,45 @@ export class TypeConstraintBuilder implements IConstraintBuilder {
 			case PropertyType.time:
 				func = this.formatDatetime('time'); break
 			case PropertyType.object:
-				func = (value:any) : EvalResult => {
-					return { valid: value !== null && typeof value === 'object' && !Array.isArray(value), message: `invalid type ${rule.type}` }
+				func = (value:any, path:string) : EvalError[] => {
+					return value !== null && typeof value === 'object' && !Array.isArray(value) ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.array:
-				func = (value:any) : EvalResult => {
-					return { valid: value !== null && Array.isArray(value), message: `invalid type ${rule.type}` }
+				func = (value:any, path:string) : EvalError[] => {
+					return value !== null && Array.isArray(value) ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
 				}; break
 			default:
-				func = (value:any) : EvalResult => {
-					return { valid: value !== null, message: `invalid type ${rule.type}` }
+				func = (value:any, path:string) : EvalError[] => {
+					return value !== null ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
 				}; break
 			}
 		} else if (Array.isArray(rule.type)) {
 			const types = rule.type
-			func = (value:any) : EvalResult => {
+			func = (value:any, path:string) : EvalError[] => {
 				const type = this.getType(value)
 				if ((type === PropertyType.integer || type === PropertyType.decimal) && types.includes(PropertyType.number)) {
-					return { valid: true }
+					return []
 				} else {
-					return { valid: types.includes(type), message: `invalid type ${rule.type}` }
+					return types.includes(type) ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
 				}
 			}
 		} else {
-			func = (value:any) : EvalResult => {
-				return { valid: value !== null, message: `invalid type ${rule.type}` }
+			func = (value:any, path:string) : EvalError[] => {
+				return value !== null ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
 			}
 		}
 		return new FunctionConstraint(func)
 	}
 
-	private formatDatetime (format:string): ((value:any) => EvalResult) {
-		return (value:any) : EvalResult => {
+	private formatDatetime (format:string): ((value:any, path:string) => EvalError[]) {
+		return (value:any, path:string) : EvalError[] => {
 			if (value === null) {
-				return { valid: false, message: 'value is null' }
+				return [{ path: path, message: 'value is null' }]
 			}
 			if (typeof value === 'string') {
-				return { valid: this.formats.test(format, value), message: `invalid format ${format}` }
+				return this.formats.test(format, value) ? [] : [{ path: path, message: `invalid format ${format}` }]
 			} else {
-				return { valid: typeof value.getMonth === 'function', message: `invalid format ${format}` }
+				return typeof value.getMonth === 'function' ? [] : [{ path: path, message: `invalid format ${format}` }]
 			}
 		}
 	}
@@ -126,23 +126,23 @@ export class MultipleOfConstraintBuilder implements IConstraintBuilder {
 		return rule.multipleOf !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (rule.multipleOf === undefined) {
 			throw new Error('multipleOf not define')
 		}
-		let func:(value:any) => EvalResult
+		let func:(value:any, path:string) => EvalError[]
 		const multipleOf = rule.multipleOf
 		if (Math.floor(multipleOf.valueOf()) === multipleOf.valueOf()) {
-			func = (value:any) : EvalResult => {
-				return { valid: isNaN(value) || value % multipleOf === 0, message: `is not multiple of ${rule.multipleOf}` }
+			func = (value:any, path:string) : EvalError[] => {
+				return isNaN(value) || value % multipleOf === 0 ? [] : [{ path: path, message: `is not multiple of ${rule.multipleOf}` }]
 			}
 		} else {
 			// number with decimals
 			const decimals = multipleOf.toString().split('.')[1].length
 			const shift = Math.pow(10, decimals)
 			const multipleOfShift = multipleOf * shift
-			func = (value:any) : EvalResult => {
-				return { valid: isNaN(value) || (value * shift) % multipleOfShift === 0, message: `is not multiple of ${rule.multipleOf}` }
+			func = (value:any, path:string) : EvalError[] => {
+				return isNaN(value) || (value * shift) % multipleOfShift === 0 ? [] : [{ path: path, message: `is not multiple of ${rule.multipleOf}` }]
 			}
 		}
 		return new FunctionConstraint(func)
@@ -153,35 +153,35 @@ export class MinMaxPropertiesConstraintBuilder implements IConstraintBuilder {
 		return rule.minProperties !== undefined || rule.maxProperties !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		const min = rule.minProperties
 		const max = rule.maxProperties
 		if (min !== undefined && max !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
+				(value:any, path:string) : EvalError[] => {
 					if (typeof value !== 'object' || Array.isArray(value)) {
-						return { valid: true }
+						return []
 					}
 					const properties = Object.keys(value).length
-					return { valid: properties >= min && properties <= max, message: `outside the range from ${min} inclusive to ${max} inclusive properties` }
+					return properties >= min && properties <= max ? [] : [{ path: path, message: `outside the range from ${min} inclusive to ${max} inclusive properties` }]
 				}
 			)
 		} else if (min !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
+				(value:any, path:string) : EvalError[] => {
 					if (typeof value !== 'object' || Array.isArray(value)) {
-						return { valid: true }
+						return []
 					}
-					return { valid: Object.keys(value).length >= min, message: `should be less or equal than ${min}` }
+					return Object.keys(value).length >= min ? [] : [{ path: path, message: `should be less or equal than ${min}` }]
 				}
 			)
 		} else if (max !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
+				(value:any, path:string) : EvalError[] => {
 					if (typeof value !== 'object' || Array.isArray(value)) {
-						return { valid: true }
+						return []
 					}
-					return { valid: Object.keys(value).length <= max, message: `should be greater or equal than ${max}` }
+					return Object.keys(value).length <= max ? [] : [{ path: path, message: `should be greater or equal than ${max}` }]
 				}
 			)
 		}
@@ -193,25 +193,25 @@ export class MinMaxItemsConstraintBuilder implements IConstraintBuilder {
 		return rule.minItems !== undefined || rule.maxItems !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		const min = rule.minItems
 		const max = rule.maxItems
 		if (min !== undefined && max !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
-					return { valid: !Array.isArray(value) || (value.length >= min && value.length <= max), message: `outside the range from ${min} to ${max} items` }
+				(value:any, path:string) : EvalError[] => {
+					return !Array.isArray(value) || (value.length >= min && value.length <= max) ? [] : [{ path: path, message: `outside the range from ${min} to ${max} items` }]
 				}
 			)
 		} else if (min !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
-					return { valid: !Array.isArray(value) || value.length >= min, message: `should be less or equal than ${min}` }
+				(value:any, path:string) : EvalError[] => {
+					return !Array.isArray(value) || value.length >= min ? [] : [{ path: path, message: `should be less or equal than ${min}` }]
 				}
 			)
 		} else if (max !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
-					return { valid: !Array.isArray(value) || value.length <= max, message: `should be greater or equal than ${max}` }
+				(value:any, path:string) : EvalError[] => {
+					return !Array.isArray(value) || value.length <= max ? [] : [{ path: path, message: `should be greater or equal than ${max}` }]
 				}
 			)
 		}
@@ -223,7 +223,7 @@ export class UniqueItemsConstraintBuilder implements IConstraintBuilder {
 		return rule.uniqueItems !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (rule.uniqueItems === undefined) {
 			throw new Error('Unique items not define')
 		}
@@ -240,12 +240,12 @@ export class UniqueItemsConstraintBuilder implements IConstraintBuilder {
 			}
 			return true
 		}
-		const func:(value:any) => EvalResult = rule.uniqueItems
-			? (value:any) : EvalResult => {
-				return { valid: !Array.isArray(value) ? true : unique(value), message: 'Invalid unique items' }
+		const func:(value:any, path:string) => EvalError[] = rule.uniqueItems
+			? (value:any, path:string) : EvalError[] => {
+				return !Array.isArray(value) || unique(value) ? [] : [{ path: path, message: 'Invalid unique items' }]
 			}
-			: () : EvalResult => {
-				return { valid: true }
+			: () : EvalError[] => {
+				return []
 			}
 		return new FunctionConstraint(func)
 	}
@@ -255,48 +255,48 @@ export class MinMaxLengthConstraintBuilder implements IConstraintBuilder {
 		return rule.minLength !== undefined || rule.maxLength !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		// https://www.acuriousanimal.com/blog/20211205/javascript-handle-unicode
 		// https://stackoverflow.com/questions/48009201/how-to-get-the-unicode-code-point-for-a-character-in-javascript
 		const min = rule.minLength
 		const max = rule.maxLength
 		if (min !== undefined && max !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
+				(value:any, path:string) : EvalError[] => {
 					if (typeof value !== 'string') {
-						return { valid: true }
+						return []
 					}
 					if (value === undefined || value === null) {
-						return { valid: false, message: 'undefined value' }
+						return [{ path: path, message: 'undefined value' }]
 					}
 					const length = Array.from(value).length
-					return { valid: length >= min && length <= max, message: `outside the range of ${min} to ${max}` }
+					return length >= min && length <= max ? [] : [{ path: path, message: `outside the range of ${min} to ${max}` }]
 				}
 			)
 		} else if (min !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
+				(value:any, path:string) : EvalError[] => {
 					if (typeof value !== 'string') {
-						return { valid: true }
+						return []
 					}
 					if (value === undefined || value === null) {
-						return { valid: false, message: 'undefined value' }
+						return [{ path: path, message: 'undefined value' }]
 					}
 					const length = Array.from(value).length
-					return { valid: length >= min, message: `should be less than ${min}` }
+					return length >= min ? [] : [{ path: path, message: `should be less than ${min}` }]
 				}
 			)
 		} else if (max !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
+				(value:any, path:string) : EvalError[] => {
 					if (typeof value !== 'string') {
-						return { valid: true }
+						return []
 					}
 					if (value === undefined || value === null) {
-						return { valid: false, message: 'undefined value' }
+						return [{ path: path, message: 'undefined value' }]
 					}
 					const length = Array.from(value).length
-					return { valid: length <= max, message: `should be greater than ${max}` }
+					return length <= max ? [] : [{ path: path, message: `should be greater than ${max}` }]
 				}
 			)
 		}
@@ -308,57 +308,57 @@ export class MinMaxConstraintBuilder implements IConstraintBuilder {
 		return rule.minimum !== undefined || rule.maximum !== undefined || rule.exclusiveMinimum !== undefined || rule.exclusiveMaximum !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		const min = rule.minimum
 		const max = rule.maximum
 		const exclusiveMinimum = rule.exclusiveMinimum
 		const exclusiveMaximum = rule.exclusiveMaximum
 		if (min !== undefined && max !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
-					return { valid: isNaN(value) || (value >= min && value <= max), message: `outside the range form ${min} to ${max}` }
+				(value:any, path:string) : EvalError[] => {
+					return isNaN(value) || (value >= min && value) <= max ? [] : [{ path: path, message: `outside the range form ${min} to ${max}` }]
 				}
 			)
 		} else if (exclusiveMinimum !== undefined && exclusiveMaximum !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
-					return { valid: isNaN(value) || (value > exclusiveMinimum && value < exclusiveMaximum), message: `outside the range form ${exclusiveMinimum} exclusive to ${exclusiveMaximum} exclusive` }
+				(value:any, path:string) : EvalError[] => {
+					return isNaN(value) || (value > exclusiveMinimum && value < exclusiveMaximum) ? [] : [{ path: path, message: `outside the range form ${exclusiveMinimum} exclusive to ${exclusiveMaximum} exclusive` }]
 				}
 			)
 		} else if (min !== undefined && exclusiveMaximum !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
-					return { valid: isNaN(value) || (value >= min && value < exclusiveMaximum), message: `outside the range form ${min} to ${exclusiveMaximum} exclusive` }
+				(value:any, path:string) : EvalError[] => {
+					return isNaN(value) || (value >= min && value < exclusiveMaximum) ? [] : [{ path: path, message: `outside the range form ${min} to ${exclusiveMaximum} exclusive` }]
 				}
 			)
 		} else if (exclusiveMinimum !== undefined && max !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
-					return { valid: isNaN(value) || (value > exclusiveMinimum && value <= max), message: `outside the range form ${exclusiveMinimum} exclusive to ${max}` }
+				(value:any, path:string) : EvalError[] => {
+					return isNaN(value) || (value > exclusiveMinimum && value <= max) ? [] : [{ path: path, message: `outside the range form ${exclusiveMinimum} exclusive to ${max}` }]
 				}
 			)
 		} else if (min !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
-					return { valid: isNaN(value) || value >= min, message: `should be less or equal than ${min}` }
+				(value:any, path:string) : EvalError[] => {
+					return isNaN(value) || value >= min ? [] : [{ path: path, message: `should be less or equal than ${min}` }]
 				}
 			)
 		} else if (exclusiveMinimum !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
-					return { valid: isNaN(value) || value > exclusiveMinimum, message: `should be less than ${exclusiveMinimum}` }
+				(value:any, path:string) : EvalError[] => {
+					return isNaN(value) || value > exclusiveMinimum ? [] : [{ path: path, message: `should be less than ${exclusiveMinimum}` }]
 				}
 			)
 		} else if (max !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
-					return { valid: isNaN(value) || value <= max, message: `should be greater or equal than ${max}` }
+				(value:any, path:string) : EvalError[] => {
+					return isNaN(value) || value <= max ? [] : [{ path: path, message: `should be greater or equal than ${max}` }]
 				}
 			)
 		} else if (exclusiveMaximum !== undefined) {
 			return new FunctionConstraint(
-				(value:any) : EvalResult => {
-					return { valid: isNaN(value) || value < exclusiveMaximum, message: `should be greater than ${exclusiveMaximum}` }
+				(value:any, path:string) : EvalError[] => {
+					return isNaN(value) || value < exclusiveMaximum ? [] : [{ path: path, message: `should be greater than ${exclusiveMaximum}` }]
 				}
 			)
 		}
@@ -375,36 +375,34 @@ export class PrefixItemsConstraintBuilder implements IConstraintBuilder {
 		return rule.prefixItems !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (rule.prefixItems === undefined) {
 			throw new Error('Prefix items not define')
 		}
 		const itemsConstraint:IConstraint[] = []
 		for (const item of rule.prefixItems) {
-			const constraint = this.factory.build(item)
+			const constraint = await this.factory.build(root, rule, item)
 			if (constraint === undefined) {
 				throw new Error(`Prefix items constraint ${JSON.stringify(rule)} undefined`)
 			}
 			itemsConstraint.push(constraint)
-			// if (constraint) {
-			// itemsConstraint.push(constraint)
-			// }
 		}
 		return new FunctionConstraint(
-			(value:any) : EvalResult => {
+			(value:any, path:string) : EvalError[] => {
 				if (!Array.isArray(value)) {
-					return { valid: true }
+					return []
 				}
+				const errors:EvalError[] = []
 				for (let i = 0; i < value.length; i++) {
 					if (i >= itemsConstraint.length) {
 						break
 					}
-					const result = itemsConstraint[i].eval(value[i])
-					if (!result.valid) {
-						return result
+					const childErrors = itemsConstraint[i].eval(value[i], path + '.' + i)
+					if (childErrors.length > 0) {
+						errors.push(...errors)
 					}
 				}
-				return { valid: true }
+				return errors
 			}
 		)
 	}
@@ -414,15 +412,15 @@ export class RequiredConstraintBuilder implements IConstraintBuilder {
 		return rule.required !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (rule.required === undefined) {
 			throw new Error('required not define')
 		}
 		const required = rule.required
 		return new FunctionConstraint(
-			(value:any) : EvalResult => {
+			(value:any, path:string) : EvalError[] => {
 				if (typeof value !== 'object' || Array.isArray(value)) {
-					return { valid: true }
+					return []
 				}
 				let count = 0
 				for (const key of Object.keys(value)) {
@@ -430,7 +428,7 @@ export class RequiredConstraintBuilder implements IConstraintBuilder {
 						count++
 					}
 				}
-				return { valid: count === required.length, message: `the following fields are required [${required.join(', ')}]` }
+				return count === required.length ? [] : [{ path: path, message: `the following fields are required [${required.join(', ')}]` }]
 			}
 		)
 	}
@@ -440,7 +438,7 @@ export class EnumConstraintBuilder implements IConstraintBuilder {
 		return rule.enum !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (rule.enum === undefined) {
 			throw new Error('Enum not define')
 		}
@@ -452,8 +450,8 @@ export class EnumConstraintBuilder implements IConstraintBuilder {
 		}
 		const showValues = values.join(',')
 		return new FunctionConstraint(
-			(value:any) : EvalResult => {
-				return { valid: values.includes(value), message: `not in [${showValues}]` }
+			(value:any, path:string) : EvalError[] => {
+				return values.includes(value) ? [] : [{ path: path, message: `not in [${showValues}]` }]
 			}
 		)
 	}
@@ -468,7 +466,7 @@ export class FormatConstraintBuilder implements IConstraintBuilder {
 		return rule.format !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (rule.format === undefined) {
 			throw new Error('Format not define')
 		}
@@ -477,11 +475,11 @@ export class FormatConstraintBuilder implements IConstraintBuilder {
 			throw new Error(`Format ${rule.format} not found`)
 		}
 		return new FunctionConstraint(
-			(value:any) : EvalResult => {
+			(value:any, path:string) : EvalError[] => {
 				if (typeof value !== 'string') {
-					return { valid: true }
+					return []
 				}
-				return { valid: format.test(value), message: `does not comply with the format ${rule.format}` }
+				return format.test(value) ? [] : [{ path: path, message: `does not comply with the format ${rule.format}` }]
 			}
 		)
 	}
@@ -491,14 +489,14 @@ export class PatternConstraintBuilder implements IConstraintBuilder {
 		return rule.pattern !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (rule.pattern === undefined) {
 			throw new Error('Pattern not define')
 		}
 		const regExp = new RegExp(rule.pattern)
 		return new FunctionConstraint(
-			(value:any) : EvalResult => {
-				return { valid: typeof value === 'string' ? regExp.test(value) : true, message: `does not comply with the format ${rule.pattern}` }
+			(value:any, path:string) : EvalError[] => {
+				return typeof value !== 'string' || regExp.test(value) ? [] : [{ path: path, message: `does not comply with the format ${rule.pattern}` }]
 			}
 		)
 	}
@@ -513,7 +511,7 @@ export class PatternPropertyConstraintBuilder implements IConstraintBuilder {
 		return rule.patternProperties !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (rule.patternProperties === undefined) {
 			throw new Error('patternProperties not define')
 		}
@@ -521,10 +519,10 @@ export class PatternPropertyConstraintBuilder implements IConstraintBuilder {
 		for (const entry of Object.entries(rule.patternProperties)) {
 			let constraint:IConstraint| undefined
 			if (typeof entry[1] === 'object') {
-				constraint = this.factory.build(entry[1] as Rule)
+				constraint = await this.factory.build(root, rule, entry[1] as Rule)
 			} else if (typeof entry[1] === 'boolean') {
-				constraint = new FunctionConstraint(() : EvalResult => {
-					return { valid: entry[1] as boolean, message: 'Pattern properties exists' }
+				constraint = new FunctionConstraint((value: string, path:string) : EvalError[] => {
+					return entry[1] as boolean ? [] : [{ path: path, message: 'Pattern properties exists' }]
 				})
 			}
 			if (constraint) {
@@ -532,17 +530,19 @@ export class PatternPropertyConstraintBuilder implements IConstraintBuilder {
 			}
 		}
 		return new FunctionConstraint(
-			(value:any) : EvalResult => {
+			(value:any, path:string) : EvalError[] => {
+				const errors:EvalError[] = []
 				for (const entry of Object.entries(value)) {
 					for (const patternProperty of patternProperties) {
 						if (patternProperty.regExp.test(entry[0])) {
-							if (!patternProperty.constraint.eval(entry[1]).valid) {
-								return { valid: false, message: 'Pattern properties invalid' }
+							const childErrors = patternProperty.constraint.eval(entry[1], path)
+							if (childErrors.length) {
+								errors.push(...childErrors)
 							}
 						}
 					}
 				}
-				return { valid: true }
+				return errors
 			}
 		)
 	}
@@ -557,66 +557,80 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 		return rule.contains !== undefined || rule.minContains !== undefined || rule.maxContains !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		const min = rule.minContains
 		const max = rule.maxContains
 		if (rule.contains === undefined) {
 			if (min !== undefined && max !== undefined) {
 				return new FunctionConstraint(
-					(value:any) : EvalResult => {
-						return { valid: !Array.isArray(value) || value.length === 0 || (value.length >= min && value.length <= max), message: `contains outside the range from ${min} to ${max} items` }
+					(value:any, path:string) : EvalError[] => {
+						return !Array.isArray(value) || value.length === 0 || (value.length >= min && value.length <= max)
+							? []
+							: [{ path: path, message: `contains outside the range from ${min} to ${max} items` }]
 					}
 				)
 			} else if (min !== undefined) {
 				return new FunctionConstraint(
-					(value:any) : EvalResult => {
-						return { valid: !Array.isArray(value) || value.length === 0 || value.length >= min, message: `contains should be less or equal than ${min}` }
+					(value:any, path:string) : EvalError[] => {
+						return !Array.isArray(value) || value.length === 0 || value.length >= min
+							? []
+							: [{ path: path, message: `contains should be less or equal than ${min}` }]
 					}
 				)
 			} else if (max !== undefined) {
 				return new FunctionConstraint(
-					(value:any) : EvalResult => {
-						return { valid: !Array.isArray(value) || value.length === 0 || value.length <= max, message: `contains should be greater or equal than ${max}` }
+					(value:any, path:string) : EvalError[] => {
+						return !Array.isArray(value) || value.length === 0 || value.length <= max
+							? []
+							: [{ path: path, message: `contains should be greater or equal than ${max}` }]
 					}
 				)
 			}
 		} else if (rule.contains !== undefined && typeof rule.contains === 'boolean') {
 			if (min !== undefined && max !== undefined) {
 				return new FunctionConstraint(
-					(value:any) : EvalResult => {
-						return { valid: !Array.isArray(value) || (value.length >= min && value.length <= max), message: `contains outside the range from ${min} to ${max} items` }
+					(value:any, path:string) : EvalError[] => {
+						return !Array.isArray(value) || (value.length >= min && value.length <= max)
+							? []
+							: [{ path: path, message: `contains outside the range from ${min} to ${max} items` }]
 					}
 				)
 			} else if (min !== undefined) {
 				return new FunctionConstraint(
-					(value:any) : EvalResult => {
-						return { valid: !Array.isArray(value) || value.length >= min, message: `contains should be less or equal than ${min}` }
+					(value:any, path:string) : EvalError[] => {
+						return !Array.isArray(value) || value.length >= min
+							? []
+							: [{ path: path, message: `contains should be less or equal than ${min}` }]
 					}
 				)
 			} else if (max !== undefined) {
 				return new FunctionConstraint(
-					(value:any) : EvalResult => {
-						return { valid: !Array.isArray(value) || value.length <= max, message: `contains should be greater or equal than ${max}` }
+					(value:any, path:string) : EvalError[] => {
+						return !Array.isArray(value) || value.length <= max
+							? []
+							: [{ path: path, message: `contains should be greater or equal than ${max}` }]
 					}
 				)
 			} else {
 				return new FunctionConstraint(
-					(value:any) : EvalResult => {
-						return { valid: !Array.isArray(value) || value.length > 0, message: 'must contain at least one item' }
+					(value:any, path:string) : EvalError[] => {
+						return !Array.isArray(value) || value.length > 0
+							? []
+							: [{ path: path, message: 'must contain at least one item' }]
 					}
 				)
 			}
 		} else if (rule.contains !== undefined) {
 			const contains = rule.contains as Rule
 			if (contains) {
-				const constraint = this.factory.build(contains)
+				const constraint = await this.factory.build(root, rule, contains)
 				if (constraint === undefined) {
 					throw new Error(`Contains constraint ${JSON.stringify(rule)} undefined`)
 				}
-				const getCount = (value:any[]): number => {
+				const getCount = (value:any[], path:string): number => {
 					let count = 0
 					for (let i = 0; i < value.length; i++) {
-						if (constraint.eval(value[i]).valid) {
+						if (constraint.eval(value[i], path).length === 0) {
 							count++
 						}
 					}
@@ -624,47 +638,54 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 				}
 				if (min !== undefined && max !== undefined) {
 					return new FunctionConstraint(
-						(value:any) : EvalResult => {
+						(value:any, path:string) : EvalError[] => {
 							if (!Array.isArray(value)) {
-								return { valid: true }
+								return []
 							}
-							const count = getCount(value)
-							return { valid: count >= min && count <= max, message: `contains outside the range from ${min} to ${max} items` }
+							const count = getCount(value, path)
+							return count >= min && count <= max
+								? []
+								: [{ path: path, message: `contains outside the range from ${min} to ${max} items` }]
 						}
 					)
 				} else if (min !== undefined) {
 					return new FunctionConstraint(
-						(value:any) : EvalResult => {
+						(value:any, path:string) : EvalError[] => {
 							if (!Array.isArray(value)) {
-								return { valid: true }
+								return []
 							}
-							const count = getCount(value)
-							return { valid: count >= min, message: `contains sconstrainthould be less or equal than ${min}` }
+							const count = getCount(value, path)
+							return count >= min ? [] : [{ path: path, message: `contains constraint should be less or equal than ${min}` }]
 						}
 					)
 				} else if (max !== undefined) {
 					return new FunctionConstraint(
-						(value:any) : EvalResult => {
+						(value:any, path:string) : EvalError[] => {
 							if (!Array.isArray(value)) {
-								return { valid: true }
+								return []
 							}
-							const count = getCount(value)
-							return { valid: count <= max, message: `contains should be greater or equal than ${max}` }
+							const count = getCount(value, path)
+							return count <= max ? [] : [{ path: path, message: `contains should be greater or equal than ${max}` }]
 						}
 					)
 				} else {
 					return new FunctionConstraint(
-						(value:any) : EvalResult => {
+						(value:any, path:string) : EvalError[] => {
+							const errors:EvalError[] = []
 							if (!Array.isArray(value)) {
-								return { valid: true }
+								return []
 							}
 							// at least one item must meet the constraint
 							for (let i = 0; i < value.length; i++) {
-								if (constraint.eval(value[i]).valid) {
-									return { valid: true }
+								const childErrors = constraint.eval(value[i], path)
+								if (childErrors.length === 0) {
+									return []
+								} else {
+									errors.push(...childErrors)
 								}
 							}
-							return { valid: false, message: 'does not meet at least one of the contain rules' }
+							errors.push({ path: path, message: 'does not meet at least one of the contain rules' })
+							return errors
 						}
 					)
 				}
@@ -678,7 +699,7 @@ export class ConstConstraintBuilder implements IConstraintBuilder {
 		return rule.const !== undefined
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (rule.const === undefined) {
 			throw new Error('Const not define')
 		}
@@ -694,15 +715,15 @@ export class ConstConstraintBuilder implements IConstraintBuilder {
 			_const = rule.const
 		}
 		return new FunctionConstraint(
-			(value:any) : EvalResult => {
+			(value:any, path:string) : EvalError[] => {
 				if (type === 'object' && isArray) {
 					const array = JSON.stringify(value)
-					return { valid: array === _const, message: `Is not ${JSON.stringify(rule.const)}` }
+					return array === _const ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
 				} else if (type === 'object' && value !== null) {
 					const array = JSON.stringify(Helper.sortObject(value))
-					return { valid: array === _const, message: `Is not ${JSON.stringify(rule.const)}` }
+					return array === _const ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
 				} else {
-					return { valid: _const === value, message: `Is not ${JSON.stringify(rule.const)}` }
+					return _const === value ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
 				}
 			}
 		)
@@ -713,13 +734,13 @@ export class BooleanSchemaConstraintBuilder implements IConstraintBuilder {
 		return typeof rule === 'boolean'
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (typeof rule !== 'boolean') {
 			throw new Error('boolean schema not define')
 		}
 		return new FunctionConstraint(
-			() : EvalResult => {
-				return { valid: rule, message: 'Boolean schema invalid' }
+			(value:any, path:string) : EvalError[] => {
+				return rule ? [] : [{ path: path, message: 'Boolean schema invalid' }]
 			}
 		)
 	}
@@ -735,33 +756,182 @@ export class IfConstraintBuilder implements IConstraintBuilder {
 		return rule.if !== undefined && (rule.then !== undefined || rule.else !== undefined)
 	}
 
-	public build (rule: Rule): IConstraint {
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 		if (rule.if === undefined) {
 			throw new Error('if not define')
 		}
 		if (rule.then === undefined && rule.else === undefined) {
 			throw new Error('then or else not define')
 		}
-		const _if = this.factory.build(rule.if)
+		const _if = await this.factory.build(root, rule, rule.if)
 		if (_if === undefined) {
 			throw new Error(`constraint ${JSON.stringify(rule)} undefined`)
 		}
-		const _then = rule.then !== undefined ? this.factory.build(rule.then) : undefined
-		const _else = rule.else !== undefined ? this.factory.build(rule.else) : undefined
+		const _then = rule.then !== undefined ? await this.factory.build(root, rule, rule.then) : undefined
+		const _else = rule.else !== undefined ? await this.factory.build(root, rule, rule.else) : undefined
 		return new FunctionConstraint(
-			(value:any) : EvalResult => {
-				const result = _if.eval(value)
-				if (result.valid && _then !== undefined) {
-					return _then !== undefined ? _then.eval(value) : { valid: true }
-				} else if (!result.valid && _else !== undefined) {
-					return _else.eval(value)
+			(value:any, path:string) : EvalError[] => {
+				const ifErrors = _if.eval(value, path)
+				if (ifErrors.length === 0 && _then !== undefined) {
+					return _then !== undefined ? _then.eval(value, path) : []
+				} else if (ifErrors.length > 0 && _else !== undefined) {
+					return _else.eval(value, path)
 				} else {
-					return { valid: true }
+					return []
 				}
 			}
 		)
 	}
 }
+
+export class NotConstraintBuilder implements IConstraintBuilder {
+	private factory: IConstraintFactory
+	constructor (factory: IConstraintFactory) {
+		this.factory = factory
+	}
+
+	public apply (rule: Rule):boolean {
+		return rule.not !== undefined
+	}
+
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
+		if (rule.not === undefined) {
+			throw new Error('Not rule not define')
+		}
+		const notConstraint = await this.factory.build(root, rule, rule.not)
+		return new FunctionConstraint(
+			(value:any, path:string) : EvalError[] => {
+				if (notConstraint) {
+					const errors = notConstraint.eval(value, path)
+					return errors.length > 0 ? [] : [{ path: path, message: 'not rule is invalid' }]
+				}
+				return []
+			}
+		)
+	}
+}
+
+export class PropertiesConstraintBuilder implements IConstraintBuilder {
+	private factory: IConstraintFactory
+	constructor (factory: IConstraintFactory) {
+		this.factory = factory
+	}
+
+	public apply (rule: Rule):boolean {
+		return rule.properties !== undefined && typeof rule.properties === 'object' && !Array.isArray(rule.properties)
+	}
+
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
+		if (rule.properties === undefined) {
+			throw new Error('Properties rule not define')
+		}
+		const type = typeof rule.properties
+		if (type !== 'object') {
+			throw new Error(`Properties should be object and not ${type}`)
+		}
+		if (Array.isArray(rule.properties)) {
+			throw new Error('Properties should be object and not array')
+		}
+		const propertiesConstraint: { name:string, constraint:IConstraint}[] = []
+		for (const entry of Object.entries(rule.properties)) {
+			const propertyConstraint = await this.factory.build(root, rule, entry[1] as Rule)
+			if (propertyConstraint) {
+				propertiesConstraint.push({ name: entry[0], constraint: propertyConstraint })
+			}
+		}
+		return new FunctionConstraint(
+			(obj:any, path:string) : EvalError[] => {
+				const errors:EvalError[] = []
+				if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+					for (const propertyConstraint of propertiesConstraint) {
+						const value = obj[propertyConstraint.name]
+						if (value !== undefined) {
+							const childErrors = propertyConstraint.constraint.eval(value, path + '.' + propertyConstraint.name)
+							if (childErrors.length > 0) {
+								errors.push(...childErrors)
+							}
+						}
+					}
+				}
+				return errors
+			}
+		)
+	}
+}
+
+export class ItemsConstraintBuilder implements IConstraintBuilder {
+	private factory: IConstraintFactory
+	constructor (factory: IConstraintFactory) {
+		this.factory = factory
+	}
+
+	public apply (rule: Rule):boolean {
+		return rule.items !== undefined && Array.isArray(rule.items)
+	}
+
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
+		if (rule.items === undefined) {
+			throw new Error('Items rule not define')
+		}
+		if (!Array.isArray(rule.items)) {
+			throw new Error('Items should be a array')
+		}
+		const constraint = await this.factory.build(root, rule, rule.items)
+		return new FunctionConstraint(
+			(array:any, path:string) : EvalError[] => {
+				const errors:EvalError[] = []
+				if (constraint && array && Array.isArray(array)) {
+					for (let i = 0; i < array.length; i++) {
+						const item = array[i]
+						const childErrors = constraint.eval(item, path + '.' + i)
+						if (childErrors.length > 0) {
+							errors.push(...childErrors)
+						}
+					}
+				}
+				return errors
+			}
+		)
+	}
+}
+
+export class RefConstraintBuilder implements IConstraintBuilder {
+	private schemas: ISchemaCollection
+	constructor (schemas: ISchemaCollection) {
+		this.schemas = schemas
+	}
+
+	public apply (rule: Rule):boolean {
+		return rule.$ref !== undefined
+	}
+
+	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
+		if (rule.$ref === undefined) {
+			throw new Error('Reference not define')
+		}
+		const buildSchema = await this.schemas.getByRef(root, parent, rule.$ref)
+		const constraint = buildSchema.constraint
+
+		return new FunctionConstraint(
+			(value:any, path:string) : EvalError[] => {
+				if (constraint) {
+					return constraint.eval(value, path)
+				}
+				return []
+			}
+		)
+	}
+}
+
+// private async getFromProperty (root: BuildedSchema, parent: BuildedSchema, property:BuildedSchema) : Promise<BuildedSchema|undefined> {
+// if (property.$ref) {
+// return await this.schemas.getByRef(root, parent, property.$ref)
+// } else if (property) {
+// return property
+// } else {
+// return undefined
+// }
+// }
 
 // allOf?:Rule[]
 // anyOf?:Rule[]
@@ -777,7 +947,7 @@ export class IfConstraintBuilder implements IConstraintBuilder {
 // return rule.allOf !== undefined && typeof rule.allOf === 'object'
 // }
 
-// public build (rule: Rule): IConstraint {
+// public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint> {
 // if (rule.allOf === undefined) {
 // throw new Error('allOf not define')
 // }
@@ -789,7 +959,7 @@ export class IfConstraintBuilder implements IConstraintBuilder {
 // }
 // }
 // return new FunctionConstraint('allOf invalid',
-// (value:any) => {
+// (value:any, path:string) => {
 // for (const groupConstraint of groupConstraints) {
 // if (propertyConstraints) {
 // for (const constrain of propertyConstraints.constraints) {
