@@ -382,9 +382,13 @@ export class PrefixItemsConstraintBuilder implements IConstraintBuilder {
 		const itemsConstraint:IConstraint[] = []
 		for (const item of rule.prefixItems) {
 			const constraint = this.factory.build(item)
-			if (constraint) {
-				itemsConstraint.push(constraint)
+			if (constraint === undefined) {
+				throw new Error(`Prefix items constraint ${JSON.stringify(rule)} undefined`)
 			}
+			itemsConstraint.push(constraint)
+			// if (constraint) {
+			// itemsConstraint.push(constraint)
+			// }
 		}
 		return new FunctionConstraint(
 			(value:any) : EvalResult => {
@@ -474,6 +478,9 @@ export class FormatConstraintBuilder implements IConstraintBuilder {
 		}
 		return new FunctionConstraint(
 			(value:any) : EvalResult => {
+				if (typeof value !== 'string') {
+					return { valid: true }
+				}
 				return { valid: format.test(value), message: `does not comply with the format ${rule.format}` }
 			}
 		)
@@ -529,7 +536,7 @@ export class PatternPropertyConstraintBuilder implements IConstraintBuilder {
 				for (const entry of Object.entries(value)) {
 					for (const patternProperty of patternProperties) {
 						if (patternProperty.regExp.test(entry[0])) {
-							if (!patternProperty.constraint.eval(entry[1])) {
+							if (!patternProperty.constraint.eval(entry[1]).valid) {
 								return { valid: false, message: 'Pattern properties invalid' }
 							}
 						}
@@ -603,8 +610,8 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 			const contains = rule.contains as Rule
 			if (contains) {
 				const constraint = this.factory.build(contains)
-				if (!constraint) {
-					throw new Error('constraint contains undefined')
+				if (constraint === undefined) {
+					throw new Error(`Contains constraint ${JSON.stringify(rule)} undefined`)
 				}
 				const getCount = (value:any[]): number => {
 					let count = 0
@@ -632,7 +639,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 								return { valid: true }
 							}
 							const count = getCount(value)
-							return { valid: count >= min, message: `contains should be less or equal than ${min}` }
+							return { valid: count >= min, message: `contains sconstrainthould be less or equal than ${min}` }
 						}
 					)
 				} else if (max !== undefined) {
@@ -701,7 +708,6 @@ export class ConstConstraintBuilder implements IConstraintBuilder {
 		)
 	}
 }
-
 export class BooleanSchemaConstraintBuilder implements IConstraintBuilder {
 	public apply (rule: Rule):boolean {
 		return typeof rule === 'boolean'
@@ -714,6 +720,44 @@ export class BooleanSchemaConstraintBuilder implements IConstraintBuilder {
 		return new FunctionConstraint(
 			() : EvalResult => {
 				return { valid: rule, message: 'Boolean schema invalid' }
+			}
+		)
+	}
+}
+
+export class IfConstraintBuilder implements IConstraintBuilder {
+	private factory: IConstraintFactory
+	constructor (factory: IConstraintFactory) {
+		this.factory = factory
+	}
+
+	public apply (rule: Rule):boolean {
+		return rule.if !== undefined && (rule.then !== undefined || rule.else !== undefined)
+	}
+
+	public build (rule: Rule): IConstraint {
+		if (rule.if === undefined) {
+			throw new Error('if not define')
+		}
+		if (rule.then === undefined && rule.else === undefined) {
+			throw new Error('then or else not define')
+		}
+		const _if = this.factory.build(rule.if)
+		if (_if === undefined) {
+			throw new Error(`constraint ${JSON.stringify(rule)} undefined`)
+		}
+		const _then = rule.then !== undefined ? this.factory.build(rule.then) : undefined
+		const _else = rule.else !== undefined ? this.factory.build(rule.else) : undefined
+		return new FunctionConstraint(
+			(value:any) : EvalResult => {
+				const result = _if.eval(value)
+				if (result.valid && _then !== undefined) {
+					return _then !== undefined ? _then.eval(value) : { valid: true }
+				} else if (!result.valid && _else !== undefined) {
+					return _else.eval(value)
+				} else {
+					return { valid: true }
+				}
 			}
 		)
 	}

@@ -72,6 +72,9 @@ export interface Rule {
 	anyOf?:Rule[]
 	oneOf?:Rule[]
 	not?:Rule
+	if?:Rule
+	then?:Rule
+	else?:Rule
 }
 export interface Schema extends Rule {
 	$id?: string

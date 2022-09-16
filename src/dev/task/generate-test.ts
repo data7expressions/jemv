@@ -88,9 +88,7 @@ const getFiles = async (pattern: string): Promise<string[]> => {
 		}
 		const totalInvalids = suitesInvalids.reduce((accumulator, p) => accumulator + p.cases.length, 0)
 		console.log(`invalids: ${totalInvalids}`)
-		if (totalInvalids > 0) {
-			await Helper.writeFile('./data/results.json', JSON.stringify(suitesInvalids, null, 2))
-		}
+		await Helper.writeFile('./data/results.json', JSON.stringify(suitesInvalids, null, 2))
 	} catch (error:any) {
 		console.error(error)
 	}
