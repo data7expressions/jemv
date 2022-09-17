@@ -120,7 +120,6 @@ export interface ValidationResult {
 // return { valid: false, path: this.path, message: this.message }
 // }
 // }
-
 export interface IConstraint {
 	eval (value:any, path:string): EvalError[]
 }
@@ -136,26 +135,26 @@ export interface BuildedSchema {
 
 export interface IConstraintBuilder {
 	apply(rule: Rule): boolean
-	build(root:Schema, parent:Rule, rule: Rule): Promise<IConstraint>
+	build(schema:Schema, path:string, rule: Rule): Promise<IConstraint>
 }
-export interface IConstraintFactory {
+export interface IConstraintManager {
 	addBuilder (constraintBuilder:IConstraintBuilder):any
-	build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint | undefined>
+	build (schema:Schema, path:string, rule: Rule): Promise<IConstraint | undefined>
 }
 
 export interface ISchemaCompleter {
 	complete (source: Schema): Schema
 }
-export interface ISchemaCollection {
-	get (value: string|Schema) : Promise<BuildedSchema>
-	getByRef (root:Schema, parent: Rule, ref:string): Promise<BuildedSchema>
-	find (uri: string) : Promise<BuildedSchema>
+export interface ISchemaProvider {
+	add (key:string, schema:Schema): Schema
+	solve (value: string|Schema): Promise<Schema>
+	find (uri: string) : Promise<Schema>
 }
 
 export interface ISchemaBuilder {
 	build (schema: Schema): Promise<BuildedSchema>
 }
 
-export interface ISchemaValidator {
-	validate (schema:BuildedSchema, data: any): Promise<ValidationResult>
+export interface ISchemaManager {
+	validate (value: string|Schema, data:any) : Promise<ValidationResult>
 }

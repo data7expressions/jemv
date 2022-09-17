@@ -1,18 +1,18 @@
-import { Schema, Rule, IConstraint, IConstraintBuilder, IConstraintFactory } from './../model/schema'
+import { Schema, Rule, IConstraint, IConstraintBuilder, IConstraintManager } from '../model/schema'
 import { AndConstraint } from './constraint'
 
-export class ConstraintFactory implements IConstraintFactory {
+export class ConstraintManager implements IConstraintManager {
 	private builders:IConstraintBuilder[] = []
 
 	public addBuilder (constraintBuilder: IConstraintBuilder) {
 		this.builders.push(constraintBuilder)
 	}
 
-	public async build (root:Schema, parent:Rule, rule: Rule): Promise<IConstraint | undefined> {
+	public async build (schema:Schema, path:string, rule: Rule): Promise<IConstraint | undefined> {
 		const constraints:IConstraint[] = []
 		for (const constraintBuilder of this.builders) {
 			if (constraintBuilder.apply(rule)) {
-				constraints.push(await constraintBuilder.build(root, parent, rule))
+				constraints.push(await constraintBuilder.build(schema, path, rule))
 			}
 		}
 		if (constraints.length === 0) {
