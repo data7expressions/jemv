@@ -1,8 +1,8 @@
-import { ISchemaCompleter, Schema } from './../model/schema'
+import { ISchemaNormalizer, Schema } from '../model/schema'
 import { Helper } from './helper'
 
-export class SchemaCompleter implements ISchemaCompleter {
-	public complete (source: Schema): Schema {
+export class SchemaNormalizer implements ISchemaNormalizer {
+	public normalize (source: Schema): Schema {
 		if (source === undefined || source === null) {
 			throw new Error('source is empty')
 		}
@@ -10,29 +10,10 @@ export class SchemaCompleter implements ISchemaCompleter {
 			return source
 		}
 		const schema = Helper.clone(source)
-		// this.solveUndefined(schema)
 		this.extend(schema)
-		// this._complete(schema)
+		this.removeProperties(schema)
 		return schema
 	}
-
-	// private solveUndefined (schema: Schema) {
-	// if (!schema.$defs) {
-	// schema.$defs = {}
-	// }
-	// // this.solvePropertyUndefined(schema)
-	// }
-
-	// private solvePropertyUndefined (property:Schema) {
-	// if (!property.properties) {
-	// property.properties = {}
-	// } else {
-	// for (const p in property.properties) {
-	// const child = property.properties[p] as Schema
-	// this.solvePropertyUndefined(child)
-	// }
-	// }
-	// }
 
 	private extend (schema: Schema):void {
 		if (schema.$defs === undefined || schema.$defs === null) {
@@ -58,6 +39,21 @@ export class SchemaCompleter implements ISchemaCompleter {
 		// remove since it was already extended
 		if (def.$extends) {
 			delete def.$extends
+		}
+	}
+
+	private removeProperties (data:any) {
+		if (Array.isArray(data)) {
+			for (const item of data) {
+				this.removeProperties(item)
+			}
+		} else if (data && typeof data === 'object') {
+			delete data.description
+			delete data.$schema
+			delete data.$extends
+			for (const value of Object.values(data)) {
+				this.removeProperties(value)
+			}
 		}
 	}
 }

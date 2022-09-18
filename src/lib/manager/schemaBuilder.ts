@@ -19,36 +19,36 @@ export class SchemaBuilder implements ISchemaBuilder {
 			// if it doesn't exist in cache, add it
 			if (typeof schema === 'object') {
 				builded = this.createSchema(schema)
-				this.addDef(builded, schema, '#')
+				// this.addDef(builded, schema)
 			} else if (typeof schema === 'boolean') {
 				builded = this.createBooleanSchema()
 			} else {
 				throw new Error(`Schema ${schema}  is invalid`)
 			}
-			builded.constraint = await this.constraints.build(schema, '#', schema)
+			builded.constraint = await this.constraints.build(schema, schema)
 			this.built[key] = builded
 		}
 		return builded
 	}
 
-	private async addDef (builded:BuildedSchema, schema: Schema, path:string): Promise<void> {
-		builded.$defs = {}
-		if (schema.$defs) {
-			for (const entry of Object.entries(schema.$defs)) {
-				const name = entry[0]
-				const child = entry[1] as Schema
-				const buildedChild = this.createSchema(child)
-				buildedChild.constraint = await this.constraints.build(schema, `${path}/$defs/${name}`, child)
-				builded.$defs[name] = buildedChild
-			}
-		}
-	}
+	// private async addDef (builded:BuildedSchema, schema: Schema): Promise<void> {
+	// builded.$defs = {}
+	// if (schema.$defs) {
+	// for (const entry of Object.entries(schema.$defs)) {
+	// const name = entry[0]
+	// const child = entry[1] as Schema
+	// const buildedChild = this.createSchema(child)
+	// buildedChild.constraint = await this.constraints.build(schema, child)
+	// builded.$defs[name] = buildedChild
+	// }
+	// }
+	// }
 
 	private createBooleanSchema ():BuildedSchema {
 		return { }
 	}
 
 	private createSchema (schema: Schema):BuildedSchema {
-		return { $id: schema.$id, $defs: schema.$defs }
+		return { $id: schema.$id }
 	}
 }

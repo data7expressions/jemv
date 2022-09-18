@@ -24,7 +24,18 @@ export interface PropertyNames {
 	minLength: number
 }
 
-export interface Rule {
+export interface Schema {
+	$id?: string
+	$schema?: string
+	$extends?: string
+	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=defs
+	$defs: any
+	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=ref
+	$ref?: string
+	title?: string
+	name?: string
+	properties?: any
+	items?: Schema
 	type?: PropertyType | PropertyType[]
 	enum?: string[]
 	// Validation Keywords for Numeric Instances (number and integer)
@@ -61,39 +72,21 @@ export interface Rule {
 	maxItems?: number
 	minItems?: number
 	uniqueItems?: boolean
-	contains?:Rule | Boolean // In process
+	contains?:Schema | Boolean // In process
 	maxContains?: number // In process
 	minContains?: number
 	const?:any // In process
 	prefixItems?: any // TODO
 	additionalItems?: any // TODO
 	unevaluatedItems?: any // TODO
-	allOf?:Rule[]
-	anyOf?:Rule[]
-	oneOf?:Rule[]
-	not?:Rule
-	if?:Rule
-	then?:Rule
-	else?:Rule
-	properties?: any
-	items?: Rule
-	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=ref
-	$ref?: string
+	allOf?:Schema[]
+	anyOf?:Schema[]
+	oneOf?:Schema[]
+	not?:Schema
+	if?:Schema
+	then?:Schema
+	else?:Schema
 }
-export interface Schema extends Rule {
-	$id?: string
-	$schema?: string
-	$extends?: string
-	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=defs
-	$defs: any
-	title?: string
-	name?: string
-}
-
-// export interface EvalResult {
-// valid:boolean
-// message?:string
-// }
 
 export interface EvalError {
 	message:string
@@ -104,51 +97,31 @@ export interface ValidationResult {
 	valid:boolean
 	errors:EvalError[]
 }
-// export class EvalResultBuilder {
-// private valid:boolean
-// private path?:string
-// private message?:string
-// constructor (valid:boolean, path?:string, message?:string) {
-// this.valid = valid
-// this.path = path
-// this.message = message
-// }
-// public build (): EvalResult {
-// if (this.valid) {
-// return { valid: true }
-// }
-// return { valid: false, path: this.path, message: this.message }
-// }
-// }
 export interface IConstraint {
-	eval (value:any, path:string): EvalError[]
+	eval (value:any, path:string): Promise<EvalError[]>
 }
 export interface BuildedSchema {
 	$id?: string
-	$defs?: any
-	// $ref?:string
-	// type?: PropertyType | PropertyType[]
-	// properties?: any
-	// items?:BuildedSchema
 	constraint?: IConstraint
 }
 
 export interface IConstraintBuilder {
-	apply(rule: Rule): boolean
-	build(schema:Schema, path:string, rule: Rule): Promise<IConstraint>
+	apply(rule: Schema): boolean
+	build(schema:Schema, rule: Schema): Promise<IConstraint>
 }
 export interface IConstraintManager {
 	addBuilder (constraintBuilder:IConstraintBuilder):any
-	build (schema:Schema, path:string, rule: Rule): Promise<IConstraint | undefined>
+	build (schema:Schema, rule: Schema): Promise<IConstraint | undefined>
 }
 
-export interface ISchemaCompleter {
-	complete (source: Schema): Schema
+export interface ISchemaNormalizer {
+	normalize (source: Schema): Schema
 }
 export interface ISchemaProvider {
-	add (key:string, schema:Schema): Schema
+	// add (key:string, schema:Schema): Schema
 	solve (value: string|Schema): Promise<Schema>
-	find (uri: string) : Promise<Schema>
+	// find (uri: string) : Promise<Schema>
+	getKey (schema:Schema) : string
 }
 
 export interface ISchemaBuilder {

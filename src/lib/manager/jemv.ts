@@ -1,4 +1,4 @@
-import { ValidationResult, Schema, ISchemaManager, IConstraintBuilder, ISchemaCompleter, ISchemaBuilder, ISchemaProvider, IConstraintManager } from '../model/schema'
+import { ValidationResult, Schema, ISchemaManager, IConstraintBuilder, ISchemaNormalizer, ISchemaBuilder, ISchemaProvider, IConstraintManager } from '../model/schema'
 import { FormatCollection } from './formatCollection'
 import {
 	TypeConstraintBuilder, MultipleOfConstraintBuilder, MinMaxPropertiesConstraintBuilder, MinMaxItemsConstraintBuilder,
@@ -7,21 +7,21 @@ import {
 	ContainsConstraintBuilder, ConstConstraintBuilder, BooleanSchemaConstraintBuilder, IfConstraintBuilder, PropertiesConstraintBuilder,
 	ItemsConstraintBuilder, RefConstraintBuilder
 } from './constraintBuilders'
-import { SchemaCompleter, SchemaBuilder, SchemaProvider, SchemaManager, ConstraintManager } from './'
+import { SchemaNormalizer, SchemaBuilder, SchemaProvider, SchemaManager, ConstraintManager } from './'
 
 export class Jemv {
 	private formats: FormatCollection
-	private completer: ISchemaCompleter
+	private normalizer: ISchemaNormalizer
 	private builder: ISchemaBuilder
 	private provider: ISchemaProvider
 	private constraints: IConstraintManager
 	private manager: ISchemaManager
 	constructor () {
 		this.formats = new FormatCollection()
-		this.completer = new SchemaCompleter()
+		this.normalizer = new SchemaNormalizer()
 		this.constraints = new ConstraintManager()
 		this.builder = new SchemaBuilder(this.constraints)
-		this.provider = new SchemaProvider(this.completer)
+		this.provider = new SchemaProvider(this.normalizer)
 		this.manager = new SchemaManager(this.provider, this.builder)
 		this._addFormats()
 		this._addConstraintsBuilder()

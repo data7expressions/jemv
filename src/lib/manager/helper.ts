@@ -2,7 +2,7 @@ import { exec } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import https from 'https'
-// import url from 'url'
+import http from 'http'
 
 export class Helper {
 	public static async get (uri: any): Promise<any> {
@@ -21,7 +21,9 @@ export class Helper {
 			// // NO FUNCIONO
 			// // rejectUnauthorized: false
 			// }
-			const req = https.request(uri, res => {
+			const protocol = new URL(uri).protocol
+			const lib = protocol === 'https:' ? https : http
+			const req = lib.request(uri, res => {
 				res.on('data', chunk => {
 					data = data + chunk.toString()
 				})
@@ -35,6 +37,40 @@ export class Helper {
 			req.end()
 		})
 	}
+
+	public static decodeUrl (source:string) {
+		let url = source
+		// https://splunktool.com/json-schema-validation-with-escaped-characters-in-patterns-fails
+		if (url.includes('~1')) {
+			url = Helper.replace(url, '~1', '/')
+		}
+		if (url.includes('~0')) {
+			url = Helper.replace(url, '~0', '~')
+		}
+		// https://www.geeksforgeeks.org/how-to-retain-special-characters-in-expressjs-router-url-request/
+		// https://codeforgeek.com/how-to-encode-decode-url-javascript/
+		if (url.includes('%')) {
+			// part = encodeURI(part)
+			url = decodeURI(url)
+		}
+		return url
+	}
+
+	// public static urlJoin (source:string, path:string) : string {
+	// const a = new URL(path, source)
+	// console.log(a.href)
+	// if (path.startsWith('/')) {
+	// return source + '/' + path
+	// }
+	// if (path.startsWith('#')) {
+	// return source.split('#')[0] + path
+	// }
+	// const url = new URL(source)
+	// const parts = url.pathname.split('/')
+	// const newPathname = parts.splice(1, parts.length - 2).join('/') + '/' + path
+	// const result = `${url.protocol}//${url.host}/${newPathname}`
+	// return result
+	// }
 
 	public static getType (value: any): string {
 		if (Array.isArray(value)) return 'array'

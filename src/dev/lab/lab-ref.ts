@@ -24,7 +24,7 @@ import { jemv } from '../../lib'
 		const schemaUri = 'https://raw.githubusercontent.com/FlavioLionelRita/test-data/main/json-schema/arrays.schema.json'
 		const validateInputResult = await jemv.validate(schemaUri, data)
 		if (!validateInputResult.valid) {
-			console.error(`error: ${validateInputResult.errors.join('\n')}`)
+			console.error(JSON.stringify(validateInputResult.errors, null, 2))
 		}
 	} catch (error:any) {
 		console.error(error)

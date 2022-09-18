@@ -1,54 +1,47 @@
-import { Schema, ISchemaCompleter, ISchemaProvider } from './../model/schema'
+import { Schema, ISchemaNormalizer, ISchemaProvider } from './../model/schema'
 import { Helper } from './helper'
 
 export class SchemaProvider implements ISchemaProvider {
 	private schemas:any = {}
-
-	private completer: ISchemaCompleter
-	constructor (completer: ISchemaCompleter) {
-		this.completer = completer
-	}
-
-	public add (key:string, schema:Schema): Schema {
-		const completed = this.completer.complete(schema)
-		this.schemas[key] = completed
-		return completed
+	private normalizer: ISchemaNormalizer
+	constructor (normalizer: ISchemaNormalizer) {
+		this.normalizer = normalizer
 	}
 
 	public async solve (value: string|Schema): Promise<Schema> {
-		if (typeof value === 'string') {
-			const schema = await this.find(value)
-			if (schema === undefined) {
-				throw new Error(`Uri ${value} not found`)
+		if (value === null || value === undefined || typeof value === 'boolean') {
+			return value
+		} else if (typeof value === 'string') {
+			let schema = this.schemas[value] as Schema | undefined
+			if (!schema) {
+				schema = await this.find(value)
+				if (schema === undefined) {
+					throw new Error(`Uri ${value} not found`)
+				}
+				schema = this.normalizer.normalize(schema)
+				this.schemas[value] = schema
 			}
 			return schema
 		} else {
 			if (value as Schema === undefined) {
 				throw new Error('Parameter value is invalid')
 			}
-			// get a key that uniquely identifies a schema
-			const key = value.$id ? value.$id : JSON.stringify(value)
-			return this.add(key, value)
+			const normalized = this.normalizer.normalize(value)
+			const key = this.getKey(normalized)
+			const schema = this.schemas[key] as Schema | undefined
+			if (schema) {
+				return schema
+			}
+			this.schemas[key] = normalized
+			return normalized
 		}
 	}
 
-	// public async find (uri: string) : Promise<Rule> {
-	// if (Helper.isEmpty(uri)) {
-	// throw Error('uri is empty')
-	// }
-	// const parts = uri.split('#')
-	// const key = parts[0]
-	// const schema = await this.findSchema(key)
-	// if (parts.length === 1) {
-	// return schema
-	// } else if (parts.length === 2) {
-	// return this.findRule(schema, parts[1])
-	// } else {
-	// throw new Error(`${uri} invalid uri`)
-	// }
-	// }
+	public getKey (schema:Schema) : string {
+		return schema.$id || this.createKey(schema)
+	}
 
-	public async find (uri: string) : Promise<Schema> {
+	private async find (uri: string) : Promise<Schema> {
 		// look for the schema in the list that makes cache
 		let schema = this.schemas[uri] as Schema | undefined
 		if (!schema) {
@@ -58,8 +51,27 @@ export class SchemaProvider implements ISchemaProvider {
 			if (!schema) {
 				throw Error(`The schema with the uri ${uri} was not found`)
 			}
-			schema = this.add(uri, schema)
 		}
 		return schema
+	}
+
+	private createKey (data:any) {
+		if (data === null) {
+			return 'null'
+		} else if (Array.isArray(data)) {
+			const items:any[] = []
+			for (const item of data) {
+				items.push(this.createKey(item))
+			}
+			return `[${items.join(',')}]`
+		} else if (typeof data === 'object') {
+			const values:any[] = []
+			for (const entry of Object.entries(data)) {
+				values.push(`${entry[0]}:${this.createKey(entry[1])}`)
+			}
+			return `{${values.join(',')}}`
+		} else {
+			return data
+		}
 	}
 }

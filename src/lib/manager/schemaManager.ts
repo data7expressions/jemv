@@ -14,7 +14,7 @@ export class SchemaManager implements ISchemaManager {
 		}
 		const schema = await this.provider.solve(value)
 		const builded = await this.builder.build(schema)
-		const errors = builded.constraint ? builded.constraint.eval(data, '.') : []
+		const errors = builded.constraint ? await builded.constraint.eval(data, '.') : []
 		return { valid: errors.length === 0, errors: errors }
 	}
 }
