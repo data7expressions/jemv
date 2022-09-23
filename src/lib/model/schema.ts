@@ -1,3 +1,4 @@
+import { Schema as SchemaBase } from 'schema-manager'
 /* eslint-disable @typescript-eslint/ban-types */
 export enum PropertyType {
 	null = 'null',
@@ -28,15 +29,7 @@ export interface InternalId {
 	id: string
 	path: string
 }
-export interface Schema {
-	$id?: string
-	$anchor?: string
-	$schema?: string
-	$extends?: string
-	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=defs
-	$defs: any
-	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=ref
-	$ref?: string
+export interface Schema extends SchemaBase {
 	title?: string
 	name?: string
 	properties?: any
@@ -122,26 +115,6 @@ export interface IConstraintManager {
 	build (root:Schema, rule: Schema): Promise<IConstraint | undefined>
 }
 
-export interface ISchemaTransform {
-	execute (schema: Schema): Schema
-}
-
-export interface ISchemaNormalizer {
-	normalize (source: Schema): Schema
-}
-export interface ISchemaManager{
-	add (value: Schema): Schema
-	load (value: string|Schema): Promise<Schema>
-	get (key: string): Schema
-	solve (value: string|Schema) : Schema
-	externalRefs (schema: Schema):string[]
-	normalize (source: Schema): Schema
-}
-
 export interface ISchemaBuilder {
 	build (schema: Schema): Promise<BuildedSchema>
 }
-
-// export interface IValidator {
-// validate (value: string|Schema, data:any) : Promise<ValidationResult>
-// }

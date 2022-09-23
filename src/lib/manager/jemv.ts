@@ -1,5 +1,6 @@
-import { ValidationResult, Schema, ISchemaManager, IConstraintBuilder, ISchemaBuilder, IConstraintManager } from '../model/schema'
+import { ValidationResult, Schema, IConstraintBuilder, ISchemaBuilder, IConstraintManager } from '../model/schema'
 import { FormatCollection } from './formatCollection'
+import { manager as schemaManager, ISchemaManager } from 'schema-manager'
 import {
 	TypeConstraintBuilder, MultipleOfConstraintBuilder, MinMaxPropertiesConstraintBuilder, MinMaxItemsConstraintBuilder,
 	UniqueItemsConstraintBuilder, MinMaxLengthConstraintBuilder, MinMaxConstraintBuilder, PrefixItemsConstraintBuilder,
@@ -7,17 +8,16 @@ import {
 	ContainsConstraintBuilder, ConstConstraintBuilder, BooleanSchemaConstraintBuilder, IfConstraintBuilder, PropertiesConstraintBuilder,
 	ItemsConstraintBuilder, RefConstraintBuilder
 } from './constraintBuilders'
-import { SchemaExtender, SchemaBuilder, SchemaCompleter, SchemaManager, ConstraintManager } from './'
+import { SchemaBuilder, ConstraintManager } from './'
 
 export class JemvBuilder {
 	public build () :Jemv {
 		const formats = new FormatCollection()
 		const constraints = new ConstraintManager()
 		const builder = new SchemaBuilder(constraints)
-		const manager = new SchemaManager([new SchemaExtender(), new SchemaCompleter()])
 		this.addCoreFormats(formats)
-		this.addCoreConstraintsBuilder(constraints, formats, manager)
-		return new Jemv(formats, constraints, builder, manager)
+		this.addCoreConstraintsBuilder(constraints, formats, schemaManager)
+		return new Jemv(formats, constraints, builder, schemaManager)
 	}
 
 	private addCoreConstraintsBuilder (constraints: IConstraintManager, formats: FormatCollection, manager:ISchemaManager) {
@@ -75,12 +75,12 @@ export class Jemv {
 	private formats: FormatCollection
 	private builder: ISchemaBuilder
 	private constraints: IConstraintManager
-	private schema: ISchemaManager
-	constructor (formats: FormatCollection, constraints: IConstraintManager, builder: ISchemaBuilder, schema: ISchemaManager) {
+	private schemaManager: ISchemaManager
+	constructor (formats: FormatCollection, constraints: IConstraintManager, builder: ISchemaBuilder, schemaManager: ISchemaManager) {
 		this.formats = formats
 		this.constraints = constraints
 		this.builder = builder
-		this.schema = schema
+		this.schemaManager = schemaManager
 	}
 
 	private static _instance: Jemv
@@ -100,30 +100,30 @@ export class Jemv {
 	}
 
 	public add (schema:Schema):Schema {
-		return this.schema.add(schema)
+		return this.schemaManager.add(schema) as Schema
 	}
 
 	public get (key:string):Schema {
-		return this.schema.get(key)
+		return this.schemaManager.get(key) as Schema
 	}
 
 	public async load (value:string|Schema): Promise<Schema> {
-		return this.schema.load(value)
+		return this.schemaManager.load(value) as Promise<Schema>
 	}
 
 	public normalize (schema:Schema):Schema {
-		return this.schema.normalize(schema)
+		return this.schemaManager.normalize(schema) as Schema
 	}
 
 	public externalRefs (schema:Schema):string[] {
-		return this.schema.externalRefs(schema)
+		return this.schemaManager.externalRefs(schema)
 	}
 
 	public async validate (value: string|Schema, data:any) : Promise<ValidationResult> {
 		if (data === undefined) {
 			return { valid: false, errors: [{ path: '.', message: 'data is empty' }] }
 		}
-		const schema = this.schema.solve(value)
+		const schema = this.schemaManager.solve(value) as Schema
 		const builded = await this.builder.build(schema)
 		const errors = builded.constraint ? await builded.constraint.eval(data, '.') : []
 		return { valid: errors.length === 0, errors: errors }

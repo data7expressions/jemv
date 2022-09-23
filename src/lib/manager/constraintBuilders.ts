@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Schema, IConstraint, IConstraintBuilder, IConstraintManager, ISchemaManager, PropertyType, EvalError } from './../model/schema'
+import { Schema, IConstraint, IConstraintBuilder, IConstraintManager, PropertyType, EvalError } from './../model/schema'
+import { ISchemaManager } from 'schema-manager'
 import { FormatCollection } from './formatCollection'
 import { FunctionConstraint } from './constraint'
 import { Helper } from './'
@@ -898,10 +899,10 @@ export class ItemsConstraintBuilder implements IConstraintBuilder {
 }
 export class RefConstraintBuilder implements IConstraintBuilder {
 	private built:any = {}
-	private manager: ISchemaManager
+	private schemaManager: ISchemaManager
 	private constraints: IConstraintManager
-	constructor (manager: ISchemaManager, constraints: IConstraintManager) {
-		this.manager = manager
+	constructor (schemaManager: ISchemaManager, constraints: IConstraintManager) {
+		this.schemaManager = schemaManager
 		this.constraints = constraints
 	}
 
@@ -993,7 +994,7 @@ export class RefConstraintBuilder implements IConstraintBuilder {
 
 	private async findSchema (current:Schema, path:string) : Promise<Schema> {
 		if (path.startsWith('http')) {
-			return this.manager.solve(path)
+			return this.schemaManager.solve(path) as Schema
 		} else {
 			if (!current.$id) {
 				throw Error('$id not defined in current schema')
@@ -1012,7 +1013,7 @@ export class RefConstraintBuilder implements IConstraintBuilder {
 			if (found !== undefined) {
 				return found
 			}
-			return this.manager.solve(uri)
+			return this.schemaManager.solve(uri) as Schema
 		}
 	}
 
