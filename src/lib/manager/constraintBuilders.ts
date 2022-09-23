@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Schema, IConstraint, IConstraintBuilder, IConstraintManager, ISchemaProvider, PropertyType, EvalError } from './../model/schema'
+import { Schema, IConstraint, IConstraintBuilder, IConstraintManager, ISchemaManager, PropertyType, EvalError } from './../model/schema'
 import { FormatCollection } from './formatCollection'
 import { FunctionConstraint } from './constraint'
-import { Helper } from './helper'
+import { Helper } from './'
 
 export class TypeConstraintBuilder implements IConstraintBuilder {
 	private formats: FormatCollection
@@ -14,7 +14,7 @@ export class TypeConstraintBuilder implements IConstraintBuilder {
 		return rule.type !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.type === undefined) {
 			throw new Error('type not define')
 		}
@@ -126,7 +126,7 @@ export class MultipleOfConstraintBuilder implements IConstraintBuilder {
 		return rule.multipleOf !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.multipleOf === undefined) {
 			throw new Error('multipleOf not define')
 		}
@@ -153,7 +153,7 @@ export class MinMaxPropertiesConstraintBuilder implements IConstraintBuilder {
 		return rule.minProperties !== undefined || rule.maxProperties !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		const min = rule.minProperties
 		const max = rule.maxProperties
 		if (min !== undefined && max !== undefined) {
@@ -193,7 +193,7 @@ export class MinMaxItemsConstraintBuilder implements IConstraintBuilder {
 		return rule.minItems !== undefined || rule.maxItems !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		const min = rule.minItems
 		const max = rule.maxItems
 		if (min !== undefined && max !== undefined) {
@@ -223,7 +223,7 @@ export class UniqueItemsConstraintBuilder implements IConstraintBuilder {
 		return rule.uniqueItems !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.uniqueItems === undefined) {
 			throw new Error('Unique items not define')
 		}
@@ -255,7 +255,7 @@ export class MinMaxLengthConstraintBuilder implements IConstraintBuilder {
 		return rule.minLength !== undefined || rule.maxLength !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		// https://www.acuriousanimal.com/blog/20211205/javascript-handle-unicode
 		// https://stackoverflow.com/questions/48009201/how-to-get-the-unicode-code-point-for-a-character-in-javascript
 		const min = rule.minLength
@@ -308,7 +308,7 @@ export class MinMaxConstraintBuilder implements IConstraintBuilder {
 		return rule.minimum !== undefined || rule.maximum !== undefined || rule.exclusiveMinimum !== undefined || rule.exclusiveMaximum !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		const min = rule.minimum
 		const max = rule.maximum
 		const exclusiveMinimum = rule.exclusiveMinimum
@@ -375,13 +375,13 @@ export class PrefixItemsConstraintBuilder implements IConstraintBuilder {
 		return rule.prefixItems !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.prefixItems === undefined) {
 			throw new Error('Prefix items not define')
 		}
 		const itemsConstraint:IConstraint[] = []
 		for (const item of rule.prefixItems) {
-			const constraint = await this.constraints.build(schema, item)
+			const constraint = await this.constraints.build(root, item)
 			if (constraint === undefined) {
 				throw new Error(`Prefix items constraint ${JSON.stringify(rule)} undefined`)
 			}
@@ -412,7 +412,7 @@ export class RequiredConstraintBuilder implements IConstraintBuilder {
 		return rule.required !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.required === undefined) {
 			throw new Error('required not define')
 		}
@@ -440,7 +440,7 @@ export class EnumConstraintBuilder implements IConstraintBuilder {
 		return rule.enum !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.enum === undefined) {
 			throw new Error('Enum not define')
 		}
@@ -468,7 +468,7 @@ export class FormatConstraintBuilder implements IConstraintBuilder {
 		return rule.format !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.format === undefined) {
 			throw new Error('Format not define')
 		}
@@ -491,7 +491,7 @@ export class PatternConstraintBuilder implements IConstraintBuilder {
 		return rule.pattern !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.pattern === undefined) {
 			throw new Error('Pattern not define')
 		}
@@ -513,7 +513,7 @@ export class PatternPropertyConstraintBuilder implements IConstraintBuilder {
 		return rule.patternProperties !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.patternProperties === undefined) {
 			throw new Error('patternProperties not define')
 		}
@@ -521,7 +521,7 @@ export class PatternPropertyConstraintBuilder implements IConstraintBuilder {
 		for (const entry of Object.entries(rule.patternProperties)) {
 			let constraint:IConstraint| undefined
 			if (typeof entry[1] === 'object') {
-				constraint = await this.constraints.build(schema, entry[1] as Schema)
+				constraint = await this.constraints.build(root, entry[1] as Schema)
 			} else if (typeof entry[1] === 'boolean') {
 				constraint = new FunctionConstraint(async (value: string, path:string) : Promise<EvalError[]> => {
 					return entry[1] as boolean ? [] : [{ path: path, message: 'Pattern properties exists' }]
@@ -559,7 +559,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 		return rule.contains !== undefined || rule.minContains !== undefined || rule.maxContains !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		const min = rule.minContains
 		const max = rule.maxContains
 		if (rule.contains === undefined) {
@@ -625,7 +625,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 		} else if (rule.contains !== undefined) {
 			const contains = rule.contains as Schema
 			if (contains) {
-				const constraint = await this.constraints.build(schema, contains)
+				const constraint = await this.constraints.build(root, contains)
 				if (constraint === undefined) {
 					throw new Error(`Contains constraint ${JSON.stringify(rule)} undefined`)
 				}
@@ -702,7 +702,7 @@ export class ConstConstraintBuilder implements IConstraintBuilder {
 		return rule.const !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.const === undefined) {
 			throw new Error('Const not define')
 		}
@@ -737,7 +737,7 @@ export class BooleanSchemaConstraintBuilder implements IConstraintBuilder {
 		return typeof rule === 'boolean'
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (typeof rule !== 'boolean') {
 			throw new Error('boolean schema not define')
 		}
@@ -758,19 +758,19 @@ export class IfConstraintBuilder implements IConstraintBuilder {
 		return rule.if !== undefined && (rule.then !== undefined || rule.else !== undefined)
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.if === undefined) {
 			throw new Error('if not define')
 		}
 		if (rule.then === undefined && rule.else === undefined) {
 			throw new Error('then or else not define')
 		}
-		const _if = await this.constraints.build(schema, rule.if)
+		const _if = await this.constraints.build(root, rule.if)
 		if (_if === undefined) {
 			throw new Error(`constraint ${JSON.stringify(rule)} undefined`)
 		}
-		const _then = rule.then !== undefined ? await this.constraints.build(schema, rule.then) : undefined
-		const _else = rule.else !== undefined ? await this.constraints.build(schema, rule.else) : undefined
+		const _then = rule.then !== undefined ? await this.constraints.build(root, rule.then) : undefined
+		const _else = rule.else !== undefined ? await this.constraints.build(root, rule.else) : undefined
 		return new FunctionConstraint(
 			async (value:any, path:string) : Promise<EvalError[]> => {
 				const ifErrors = await _if.eval(value, path)
@@ -795,11 +795,11 @@ export class NotConstraintBuilder implements IConstraintBuilder {
 		return rule.not !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.not === undefined) {
 			throw new Error('Not rule not define')
 		}
-		const notConstraint = await this.constraints.build(schema, rule.not)
+		const notConstraint = await this.constraints.build(root, rule.not)
 		return new FunctionConstraint(
 			async (value:any, path:string) : Promise<EvalError[]> => {
 				if (notConstraint) {
@@ -821,7 +821,7 @@ export class PropertiesConstraintBuilder implements IConstraintBuilder {
 		return rule.properties !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.properties === undefined) {
 			throw new Error('Properties rule not define')
 		}
@@ -831,7 +831,7 @@ export class PropertiesConstraintBuilder implements IConstraintBuilder {
 		const propertiesConstraint: { name:string, constraint:IConstraint}[] = []
 		if (typeof rule.properties === 'object') {
 			for (const entry of Object.entries(rule.properties)) {
-				const propertyConstraint = await this.constraints.build(schema, entry[1] as Schema)
+				const propertyConstraint = await this.constraints.build(root, entry[1] as Schema)
 				if (propertyConstraint) {
 					propertiesConstraint.push({ name: entry[0], constraint: propertyConstraint })
 				}
@@ -868,7 +868,7 @@ export class ItemsConstraintBuilder implements IConstraintBuilder {
 		return rule.items !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.items === undefined) {
 			throw new Error('Items rule not define')
 		}
@@ -878,7 +878,7 @@ export class ItemsConstraintBuilder implements IConstraintBuilder {
 		if (typeof rule.items !== 'object') {
 			throw new Error('Items should be object')
 		}
-		const constraint = await this.constraints.build(schema, rule.items)
+		const constraint = await this.constraints.build(root, rule.items)
 		return new FunctionConstraint(
 			async (array:any, path:string) : Promise<EvalError[]> => {
 				const errors:EvalError[] = []
@@ -898,10 +898,10 @@ export class ItemsConstraintBuilder implements IConstraintBuilder {
 }
 export class RefConstraintBuilder implements IConstraintBuilder {
 	private built:any = {}
-	private provider: ISchemaProvider
+	private manager: ISchemaManager
 	private constraints: IConstraintManager
-	constructor (provider: ISchemaProvider, constraints: IConstraintManager) {
-		this.provider = provider
+	constructor (manager: ISchemaManager, constraints: IConstraintManager) {
+		this.manager = manager
 		this.constraints = constraints
 	}
 
@@ -909,51 +909,83 @@ export class RefConstraintBuilder implements IConstraintBuilder {
 		return rule.$ref !== undefined
 	}
 
-	public async build (schema:Schema, rule: Schema): Promise<IConstraint> {
+	public async build (root:Schema, rule: Schema): Promise<IConstraint> {
 		if (rule.$ref === undefined) {
 			throw new Error('Reference not define')
 		}
-		const key = this.getKey(schema, rule.$ref)
-		let constraint = this.built[key] as IConstraint | undefined
-		if (constraint) {
-			return constraint
-		}
-		let referencedRule:Schema
-		let referencedSchema:Schema
-		if (rule.$ref.startsWith('#')) {
-			referencedSchema = schema
-			referencedRule = this.findRule(schema, rule.$ref)
-		} else if ((/\w/g).test(rule.$ref) && schema.$defs && Object.keys(schema.$defs).includes(rule.$ref)) {
-			referencedSchema = schema
-			referencedRule = schema.$defs[Helper.decodeUrl(rule.$ref)]
-		} else {
-			const parts = rule.$ref.split('#')
-			referencedSchema = await this.findSchema(schema, parts[0])
-			referencedRule = parts.length > 1 ? this.findRule(referencedSchema, '#' + parts[1]) : referencedSchema
-		}
-		constraint = new FunctionConstraint(
-			async (value:any, path:string) : Promise<EvalError[]> => {
-				const constraint = await this.constraints.build(referencedSchema, referencedRule)
-				if (constraint) {
-					return constraint.eval(value, path)
-				}
-				return []
+		let key:string | undefined
+		try {
+			key = this.getKey(root, rule.$ref)
+			let constraint = this.built[key] as IConstraint | undefined
+			if (constraint) {
+				return constraint
 			}
-		)
-		this.built[key] = constraint
-		return constraint
+			let referencedSchema:Schema
+			let referencedRule:Schema | undefined
+			if (rule.$ref.startsWith('#')) {
+				referencedSchema = root
+				referencedRule = this.findRule(root, rule.$ref)
+				if (referencedRule === undefined) {
+					referencedRule = this.findRule(rule, rule.$ref)
+					if (referencedRule === undefined) {
+						throw new Error(`Ref ${rule.$ref} in schema not found `)
+					}
+				}
+			} else if ((/\w/g).test(rule.$ref) && root.$defs && Object.keys(root.$defs).includes(rule.$ref)) {
+				referencedSchema = root
+				const found = this.findById(root, rule.$ref)
+				if (found === undefined) {
+					referencedRule = root.$defs[Helper.decodeUrl(rule.$ref)]
+					if (referencedRule === undefined) {
+						throw new Error(`Ref ${rule.$ref} schema not found `)
+					}
+				}
+			} else {
+				const parts = rule.$ref.split('#')
+				referencedSchema = await this.findSchema(root, parts[0])
+				if (parts.length === 1) {
+					referencedRule = referencedSchema
+				} else if (parts.length === 2) {
+					referencedRule = this.findRule(referencedSchema, '#' + parts[1])
+					if (referencedRule === undefined) {
+						throw new Error(`Ref ${parts[1]} in ${parts[0]} schema not found`)
+					}
+				} else {
+					throw new Error(`Ref ${rule.$ref} is invalid`)
+				}
+			}
+			constraint = new FunctionConstraint(
+				async (value:any, path:string) : Promise<EvalError[]> => {
+					if (referencedRule === undefined) {
+						throw new Error(`Ref ${rule.$ref} not found `)
+					}
+					const constraint = await this.constraints.build(referencedSchema, referencedRule)
+					if (constraint) {
+						return constraint.eval(value, path)
+					}
+					return []
+				}
+			)
+			this.built[key] = constraint
+			return constraint
+		} catch (error:any) {
+			if (key !== undefined) {
+				throw Error(`Ref ${rule.$ref} in ${key} error: ${error.message} `)
+			} else {
+				throw Error(`Ref ${rule.$ref} error: ${error.message} `)
+			}
+		}
 	}
 
 	private getKey (current:Schema, path:string) : string {
 		if (path.startsWith('http')) {
 			return path
 		}
-		const schemaId = this.provider.getKey(current)
+		const schemaId = current.$id || Helper.createKey(current)
 		if (path.startsWith('#') || path.startsWith('/')) {
 			return `${schemaId}/${path}`
 		} else if (current.$id) {
-			return new URL(path, current.$id).href
-			// return Helper.urlJoin(current.$id, path)
+			return Helper.urlJoin(current.$id, path)
 		} else {
 			throw new Error(`${path} invalid uri`)
 		}
@@ -961,22 +993,33 @@ export class RefConstraintBuilder implements IConstraintBuilder {
 
 	private async findSchema (current:Schema, path:string) : Promise<Schema> {
 		if (path.startsWith('http')) {
-			return this.provider.solve(path)
+			return this.manager.solve(path)
 		} else {
 			if (!current.$id) {
 				throw Error('$id not defined in current schema')
 			}
-			const uri = new URL(path, current.$id).href
+			// check if the path matches any $id within the current schema
+			let found = this.findById(current, path)
+			if (found !== undefined) {
+				return found
+			}
+			const uri = Helper.urlJoin(current.$id, path)
 			if (uri === path || uri === current.$id) {
 				return current
 			}
-			return this.provider.solve(uri)
+			// check if the uri matches any $id within the current schema
+			found = this.findById(current, uri)
+			if (found !== undefined) {
+				return found
+			}
+			return this.manager.solve(uri)
 		}
 	}
 
-	private findRule (schema: Schema, ref:string): Schema {
+	private findRule (schema: Schema, ref:string): Schema | undefined {
 		if (!ref.startsWith('#')) {
-			throw Error(`${ref} invalid internal ref`)
+			// throw Error(`${ref} invalid internal ref`)
+			return undefined
 		}
 		if (ref === '#' || schema.$id === ref) {
 			return schema
@@ -988,13 +1031,37 @@ export class RefConstraintBuilder implements IConstraintBuilder {
 				part = Helper.decodeUrl(part)
 				const child = _current[part]
 				if (child === undefined) {
-					throw Error(`path ${parts.splice(0, i).join('.')} not fount in ${ref} ref`)
+					// throw Error(`path ${parts.splice(0, i).join('.')} not fount in ${ref} ref`)
+					return undefined
 				}
 				_current = child
 			}
 			return _current as Schema
 		} else {
-			throw Error(`Invalid ${ref} ref`)
+			// throw Error(`Invalid ${ref} ref`)
+			return undefined
 		}
+	}
+
+	private findById (schema: Schema, id:string): Schema | undefined {
+		if (Array.isArray(schema)) {
+			for (const item of schema) {
+				const found = this.findById(item, id)
+				if (found) {
+					return found
+				}
+			}
+		} else if (typeof schema === 'object') {
+			if (schema.$id && schema.$id === id) {
+				return schema
+			}
+			for (const property of Object.values(schema)) {
+				const found = this.findById(property, id)
+				if (found) {
+					return found
+				}
+			}
+		}
+		return undefined
 	}
 }

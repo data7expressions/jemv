@@ -41,9 +41,13 @@ const validate = async (suite:TestSuite):Promise<TestCaseInvalid[]> => {
 	for (const _case of suite.cases) {
 		const invalidTest:Test[] = []
 		for (const test of _case.tests) {
-			const result = await jemv.validate(_case.schema, test.data)
-			if (result.valid !== test.valid) {
-				invalidTest.push(test)
+			try {
+				const result = await jemv.validate(_case.schema, test.data)
+				if (result.valid !== test.valid) {
+					invalidTest.push(test)
+				}
+			} catch (error:any) {
+				console.error(`file: ${suite.file}, case : ${_case.description} , test: ${test.description}`)
 			}
 		}
 		if (invalidTest.length > 0) {

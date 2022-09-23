@@ -1,5 +1,10 @@
 # Schema
 
+## Schemas
+
+- [Schemas standard](https://schema.org/)
+- [JSON-LD](https://en.wikipedia.org/wiki/JSON-LD)
+
 ## Examples
 
 - [aws invoice](https://docs.aws.amazon.com/apigateway/latest/developerguide/example-invoice.html)

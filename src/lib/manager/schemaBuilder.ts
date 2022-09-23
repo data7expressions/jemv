@@ -31,19 +31,6 @@ export class SchemaBuilder implements ISchemaBuilder {
 		return builded
 	}
 
-	// private async addDef (builded:BuildedSchema, schema: Schema): Promise<void> {
-	// builded.$defs = {}
-	// if (schema.$defs) {
-	// for (const entry of Object.entries(schema.$defs)) {
-	// const name = entry[0]
-	// const child = entry[1] as Schema
-	// const buildedChild = this.createSchema(child)
-	// buildedChild.constraint = await this.constraints.build(schema, child)
-	// builded.$defs[name] = buildedChild
-	// }
-	// }
-	// }
-
 	private createBooleanSchema ():BuildedSchema {
 		return { }
 	}

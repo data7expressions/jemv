@@ -14,6 +14,33 @@
 			"program": "${workspaceFolder}/src/dev/lab/lab-ref.ts"
 		},
 		{
+			"name": "lab ref normalized",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/src/dev/lab/lab-ref-normalized.ts"
+		},
+		{
+			"name": "lab ref load",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/src/dev/lab/lab-ref-load.ts"
+		},
+		{
+			"name": "lab avj",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/src/dev/lab/lab-avj.ts"
+		},		
+		{
 			"name": "task generate test",
 			"type": "node",
 			"request": "launch",

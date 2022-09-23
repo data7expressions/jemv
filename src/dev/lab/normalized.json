@@ -1,0 +1,380 @@
+[
+  {
+    "properties": {
+      "foo": {
+        "$ref": "#"
+      }
+    },
+    "additionalProperties": false
+  },
+  {
+    "properties": {
+      "foo": {
+        "type": "integer"
+      },
+      "bar": {
+        "$ref": "#/properties/foo"
+      }
+    }
+  },
+  {
+    "prefixItems": [
+      {
+        "type": "integer"
+      },
+      {
+        "$ref": "#/prefixItems/0"
+      }
+    ]
+  },
+  {
+    "$defs": {
+      "tilde~field": {
+        "type": "integer"
+      },
+      "slash/field": {
+        "type": "integer"
+      },
+      "percent%field": {
+        "type": "integer"
+      }
+    },
+    "properties": {
+      "tilde": {
+        "$ref": "#/$defs/tilde~0field"
+      },
+      "slash": {
+        "$ref": "#/$defs/slash~1field"
+      },
+      "percent": {
+        "$ref": "#/$defs/percent%25field"
+      }
+    }
+  },
+  {
+    "$defs": {
+      "a": {
+        "type": "integer"
+      },
+      "b": {
+        "$ref": "#/$defs/a"
+      },
+      "c": {
+        "$ref": "#/$defs/b"
+      }
+    },
+    "$ref": "#/$defs/c"
+  },
+  {
+    "$defs": {
+      "reffed": {
+        "type": "array"
+      }
+    },
+    "properties": {
+      "foo": {
+        "$ref": "#/$defs/reffed",
+        "maxItems": 2
+      }
+    }
+  },
+  {
+    "$ref": "https://json-schema.org/draft/2020-12/schema"
+  },
+  {
+    "properties": {
+      "$ref": {
+        "type": "string"
+      }
+    }
+  },
+  {
+    "properties": {
+      "$ref": {
+        "$ref": "#/$defs/is-string"
+      }
+    },
+    "$defs": {
+      "is-string": {
+        "type": "string"
+      }
+    }
+  },
+  {
+    "$ref": "#/$defs/bool",
+    "$defs": {
+      "bool": true
+    }
+  },
+  {
+    "$ref": "#/$defs/bool",
+    "$defs": {
+      "bool": false
+    }
+  },
+  {
+    "$id": "http://localhost:1234/draft2020-12/tree",
+    "type": "object",
+    "properties": {
+      "meta": {
+        "type": "string"
+      },
+      "nodes": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/node"
+        }
+      }
+    },
+    "required": [
+      "meta",
+      "nodes"
+    ],
+    "$defs": {
+      "node": {
+        "$id": "http://localhost:1234/draft2020-12/node",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number"
+          },
+          "subtree": {
+            "$ref": "#"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+    }
+  },
+  {
+    "properties": {
+      "foo\"bar": {
+        "$ref": "#/$defs/foo%22bar"
+      }
+    },
+    "$defs": {
+      "foo\"bar": {
+        "type": "number"
+      }
+    }
+  },
+  {
+    "$defs": {
+      "A": {
+        "unevaluatedProperties": false
+      }
+    },
+    "properties": {
+      "prop1": {
+        "type": "string"
+      }
+    },
+    "$ref": "#/$defs/A"
+  },
+  {
+    "$defs": {
+      "a_string": {
+        "type": "string"
+      }
+    },
+    "enum": [
+      {
+        "$ref": "#/$defs/a_string"
+      }
+    ]
+  },
+  {
+    "$id": "http://example.com/schema-relative-uri-defs1.json",
+    "properties": {
+      "foo": {
+        "$id": "http://example.com/schema-relative-uri-defs2.json",
+        "$defs": {
+          "inner": {
+            "properties": {
+              "bar": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "$ref": "#/properties/foo/$defs/inner"
+      }
+    },
+    "$ref": "#/properties/foo"
+  },
+  {
+    "$id": "http://example.com/schema-refs-absolute-uris-defs1.json",
+    "properties": {
+      "foo": {
+        "$id": "http://example.com/schema-refs-absolute-uris-defs2.json",
+        "$defs": {
+          "inner": {
+            "properties": {
+              "bar": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "$ref": "#/properties/foo/$defs/inner"
+      }
+    },
+    "$ref": "#/properties/foo"
+  },
+  {
+    "$id": "http://example.com/a.json",
+    "$defs": {
+      "x": {
+        "$id": "http://example.com/b/c.json",
+        "not": {
+          "$defs": {
+            "y": {
+              "$id": "http://example.com/b/d.json",
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "allOf": [
+      {
+        "$ref": "#/$defs/x/not/$defs/y"
+      }
+    ]
+  },
+  {
+    "$id": "/draft2020-12/ref-and-id1/base.json",
+    "$ref": "#/$defs/bigint",
+    "$defs": {
+      "bigint": {
+        "$id": "draft2020-12/ref-and-id1/int.json",
+        "maximum": 10
+      },
+      "smallint": {
+        "$id": "draft2020-12/draft2020-12/ref-and-id1-int.json",
+        "maximum": 2
+      }
+    }
+  },
+  {
+    "$id": "/draft2020-12/ref-and-id2/base.json",
+    "$ref": "#/$defs/bigint",
+    "$defs": {
+      "bigint": {
+        "maximum": 10,
+        "$id": "/draft2020-12/ref-and-id2/base.json#bigint"
+      },
+      "smallint": {
+        "$id": "draft2020-12/draft2020-12/ref-and-id2#bigint",
+        "maximum": 2
+      }
+    }
+  },
+  {
+    "$id": "urn:uuid:deadbeef-1234-ffff-ffff-4321feebdaed",
+    "minimum": 30,
+    "properties": {
+      "foo": {
+        "$ref": "#"
+      }
+    }
+  },
+  {
+    "$id": "urn:uuid:deadbeef-1234-00ff-ff00-4321feebdaed",
+    "properties": {
+      "foo": {
+        "$ref": "#/$defs/bar"
+      }
+    },
+    "$defs": {
+      "bar": {
+        "type": "string"
+      }
+    }
+  },
+  {
+    "$id": "urn:example:1/406/47452/2",
+    "properties": {
+      "foo": {
+        "$ref": "#/$defs/bar"
+      }
+    },
+    "$defs": {
+      "bar": {
+        "type": "string"
+      }
+    }
+  },
+  {
+    "$id": "urn:example:foo-bar-baz-qux?+CCResolve:cc=uk",
+    "properties": {
+      "foo": {
+        "$ref": "#/$defs/bar"
+      }
+    },
+    "$defs": {
+      "bar": {
+        "type": "string"
+      }
+    }
+  },
+  {
+    "$id": "urn:example:weather?=op=map&lat=39.56&lon=-104.85&datetime=1969-07-21T02:56:15Z",
+    "properties": {
+      "foo": {
+        "$ref": "#/$defs/bar"
+      }
+    },
+    "$defs": {
+      "bar": {
+        "type": "string"
+      }
+    }
+  },
+  {
+    "$ref": "https://json-schema.org/draft/2020-12/schema"
+  },
+  {
+    "$id": "urn:uuid:deadbeef-1234-0000-0000-4321feebdaed",
+    "properties": {
+      "foo": {
+        "$ref": "##/$defs/bar"
+      }
+    },
+    "$defs": {
+      "bar": {
+        "type": "string"
+      }
+    }
+  },
+  {
+    "$id": "urn:uuid:deadbeef-1234-ff00-00ff-4321feebdaed",
+    "properties": {
+      "foo": {
+        "$ref": "#/$defs/bar"
+      }
+    },
+    "$defs": {
+      "bar": {
+        "type": "string",
+        "$id": "urn:uuid:deadbeef-1234-ff00-00ff-4321feebdaed#something"
+      }
+    }
+  },
+  {
+    "$ref": "#/$defs/foo",
+    "$defs": {
+      "foo": {
+        "$id": "urn:uuid:deadbeef-4321-ffff-ffff-1234feebdaed",
+        "$defs": {
+          "bar": {
+            "type": "string"
+          }
+        },
+        "$ref": "#/$defs/foo/$defs/bar"
+      }
+    }
+  }
+]

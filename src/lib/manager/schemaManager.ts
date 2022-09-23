@@ -1,97 +1,104 @@
-import { Schema, ValidationResult, ISchemaManager, ISchemaBuilder, ISchemaProvider } from '../model/schema'
+import { Schema, ISchemaTransform, ISchemaManager } from '../model/schema'
+import { Helper } from '.'
 
 export class SchemaManager implements ISchemaManager {
-	private provider: ISchemaProvider
-	private builder: ISchemaBuilder
-	constructor (provider: ISchemaProvider, builder: ISchemaBuilder) {
-		this.provider = provider
-		this.builder = builder
+	private schemas:any = {}
+	private transformers: ISchemaTransform[] = []
+	constructor (transformers: ISchemaTransform[]) {
+		this.transformers = transformers
 	}
 
-	public async validate (value: string|Schema, data:any) : Promise<ValidationResult> {
-		if (data === undefined) {
-			return { valid: false, errors: [{ path: '.', message: 'data is empty' }] }
+	public async load (value: string|Schema): Promise<Schema> {
+		if (value === null || value === undefined || typeof value === 'boolean') {
+			return value
 		}
-		const schema = await this.provider.solve(value)
-		const builded = await this.builder.build(schema)
-		const errors = builded.constraint ? await builded.constraint.eval(data, '.') : []
-		return { valid: errors.length === 0, errors: errors }
+		let schema:Schema | undefined
+		let key:string
+		if (typeof value === 'string') {
+			schema = this.schemas[value] as Schema | undefined
+			if (schema) {
+				return schema
+			}
+			const content = await Helper.get(value)
+			const downloaded = Helper.tryParse(content) as Schema
+			if (!downloaded) {
+				throw Error(`The schema in ${value} not found`)
+			}
+			schema = this.normalize(downloaded)
+			key = schema.$id || value
+		} else {
+			if (value as Schema === undefined) {
+				throw new Error('Parameter value is invalid')
+			}
+			schema = this.normalize(value)
+			key = schema.$id || Helper.createKey(schema)
+		}
+		this.schemas[key] = schema
+		const externalsRefs = this.externalRefs(schema)
+		for (const externalsRef of externalsRefs) {
+			this.load(externalsRef)
+		}
+		return schema
+	}
+
+	public add (value: Schema): Schema {
+		if (value === null || value === undefined || typeof value === 'boolean') {
+			return value
+		}
+		if (value as Schema === undefined) {
+			throw new Error('Parameter value is invalid')
+		}
+		const schema = this.normalize(value)
+		if (this.externalRefs(schema).length > 0) {
+			throw new Error('You must use the load method, since it is required to load external schemas')
+		}
+		const key = schema.$id || Helper.createKey(schema)
+		this.schemas[key] = schema
+		return schema
+	}
+
+	public get (key: string) : Schema {
+		const schema = this.schemas[key] as Schema | undefined
+		if (!schema) {
+			throw Error(`The schema ${key} not found`)
+		}
+		return schema
+	}
+
+	public solve (value: string|Schema) : Schema {
+		if (value === null || value === undefined || typeof value === 'boolean') {
+			return value
+		}
+		if (typeof value === 'string') {
+			return this.get(value)
+		}
+		if (value as Schema === undefined) {
+			throw new Error('Parameter value is invalid')
+		}
+		return this.add(value)
+	}
+
+	public externalRefs (schema: Schema):string[] {
+		const ids = Helper.findAllInObject(schema, (value:any):boolean => {
+			return value.$id !== undefined && value.$id.startsWith('http')
+		}).map(p => p.$id)
+		const refs = Helper.findAllInObject(schema, (value:any):boolean => {
+			return value.$ref !== undefined && value.$ref.startsWith('http')
+		}).map(p => p.$ref)
+		return refs.filter(p => !ids.includes(p))
+	}
+
+	public normalize (source: Schema): Schema {
+		if (source === undefined || source === null) {
+			throw new Error('source is empty')
+		}
+		if (typeof source !== 'object') {
+			return source
+		}
+		let schema = Helper.clone(source)
+		for (const transformer of this.transformers) {
+			schema = transformer.execute(schema)
+		}
+		return schema
 	}
 }
-
-// export class SchemaCollection {
-// private buildedList:any = {}
-// private completer: ISchemaCompleter
-// private builder: ISchemaBuilder
-// constructor (completer: ISchemaCompleter, builder: ISchemaBuilder) {
-// this.completer = completer
-// this.builder = builder
-// }
-// public async get (value: string|Schema) : Promise<Schema> {
-// let builded:BuildedSchema|undefined
-// if (typeof value === 'string') {
-// builded = await this.find(value)
-// if (builded === undefined) {
-// throw new Error(`Uri ${value} not found`)
-// }
-// } else {
-// if ((value as Schema) === undefined) {
-// throw new Error('Parameter value is invalid')
-// }
-// // get a key that uniquely identifies a schema
-// const key = value.$id ? value.$id : JSON.stringify(value)
-// // look for the schema in the cache list
-// builded = this.buildedList[key] as BuildedSchema | undefined
-// if (builded === undefined) {
-// // if it doesn't exist in cache, add it
-// builded = await this.build(value)
-// this.buildedList[key] = builded
-// }
-// }
-// return builded
-// }
-// public async getByRef (root:Schema, parent: Schema, ref:string): Promise<BuildedSchema> {
-// const rootBuilded = await this.get(root)
-// const parentBuilded = await this.get(parent)
-// return this._getByRef(rootBuilded, parentBuilded, ref)
-// }
-// public async _getByRef (root:BuildedSchema, parent: BuildedSchema, ref:string): Promise<BuildedSchema> {
-// if (ref.startsWith('#/$defs')) {
-// return this.findInternal(root, ref)
-// } else if (ref.startsWith('#')) {
-// return this.findInternal(parent, ref)
-// } else if (ref.startsWith('http')) {
-// return await this.find(ref)
-// } else if (ref.startsWith('/')) {
-// if (!root.$id) {
-// throw Error('$id not defined in schema')
-// }
-// const uri = new URL(root.$id, ref).href
-// return await this.find(uri)
-// } else {
-// throw Error(`Ref: ${ref} is invalid`)
-// }
-// }
-// public async find (uri: string) : Promise<BuildedSchema> {
-// if (Helper.isEmpty(uri)) {
-// throw Error('uri is empty')
-// }
-// const parts = uri.split('#')
-// const key = parts[0]
-// // look for the schema in the list that makes cache
-// let builded = this.buildedList[key] as BuildedSchema | undefined
-// if (!builded) {
-// // if it is not in cache it looks for it externally
-// const schema = await this.findExternal(key)
-// builded = await this.build(schema)
-// this.buildedList[key] = builded
-// }
-// if (parts.length === 1) {
-// return builded
-// } else if (parts.length === 2) {
-// return this.findInternal(builded, parts[1])
-// } else {
-// throw new Error(`${uri} invalid uri`)
-// }
-// }
-// }

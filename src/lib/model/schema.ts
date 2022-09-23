@@ -24,8 +24,13 @@ export interface PropertyNames {
 	minLength: number
 }
 
+export interface InternalId {
+	id: string
+	path: string
+}
 export interface Schema {
 	$id?: string
+	$anchor?: string
 	$schema?: string
 	$extends?: string
 	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=defs
@@ -86,6 +91,9 @@ export interface Schema {
 	if?:Schema
 	then?:Schema
 	else?:Schema
+
+	$id2?:string
+	$ref2?: string
 }
 
 export interface EvalError {
@@ -107,27 +115,33 @@ export interface BuildedSchema {
 
 export interface IConstraintBuilder {
 	apply(rule: Schema): boolean
-	build(schema:Schema, rule: Schema): Promise<IConstraint>
+	build(root:Schema, rule: Schema): Promise<IConstraint>
 }
 export interface IConstraintManager {
 	addBuilder (constraintBuilder:IConstraintBuilder):any
-	build (schema:Schema, rule: Schema): Promise<IConstraint | undefined>
+	build (root:Schema, rule: Schema): Promise<IConstraint | undefined>
+}
+
+export interface ISchemaTransform {
+	execute (schema: Schema): Schema
 }
 
 export interface ISchemaNormalizer {
 	normalize (source: Schema): Schema
 }
-export interface ISchemaProvider {
-	// add (key:string, schema:Schema): Schema
-	solve (value: string|Schema): Promise<Schema>
-	// find (uri: string) : Promise<Schema>
-	getKey (schema:Schema) : string
+export interface ISchemaManager{
+	add (value: Schema): Schema
+	load (value: string|Schema): Promise<Schema>
+	get (key: string): Schema
+	solve (value: string|Schema) : Schema
+	externalRefs (schema: Schema):string[]
+	normalize (source: Schema): Schema
 }
 
 export interface ISchemaBuilder {
 	build (schema: Schema): Promise<BuildedSchema>
 }
 
-export interface ISchemaManager {
-	validate (value: string|Schema, data:any) : Promise<ValidationResult>
-}
+// export interface IValidator {
+// validate (value: string|Schema, data:any) : Promise<ValidationResult>
+// }
