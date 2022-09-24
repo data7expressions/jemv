@@ -1,6 +1,6 @@
 import { ValidationResult, Schema, IConstraintBuilder, ISchemaBuilder, IConstraintManager } from '../model/schema'
 import { FormatCollection } from './formatCollection'
-import { manager as schemaManager, ISchemaManager } from 'schema-manager'
+import { schemas, ISchemaManager } from 'schema-manager'
 import {
 	TypeConstraintBuilder, MultipleOfConstraintBuilder, MinMaxPropertiesConstraintBuilder, MinMaxItemsConstraintBuilder,
 	UniqueItemsConstraintBuilder, MinMaxLengthConstraintBuilder, MinMaxConstraintBuilder, PrefixItemsConstraintBuilder,
@@ -16,8 +16,8 @@ export class JemvBuilder {
 		const constraints = new ConstraintManager()
 		const builder = new SchemaBuilder(constraints)
 		this.addCoreFormats(formats)
-		this.addCoreConstraintsBuilder(constraints, formats, schemaManager)
-		return new Jemv(formats, constraints, builder, schemaManager)
+		this.addCoreConstraintsBuilder(constraints, formats, schemas)
+		return new Jemv(formats, constraints, builder, schemas)
 	}
 
 	private addCoreConstraintsBuilder (constraints: IConstraintManager, formats: FormatCollection, manager:ISchemaManager) {
@@ -75,12 +75,12 @@ export class Jemv {
 	private formats: FormatCollection
 	private builder: ISchemaBuilder
 	private constraints: IConstraintManager
-	private schemaManager: ISchemaManager
-	constructor (formats: FormatCollection, constraints: IConstraintManager, builder: ISchemaBuilder, schemaManager: ISchemaManager) {
+	private schemas: ISchemaManager
+	constructor (formats: FormatCollection, constraints: IConstraintManager, builder: ISchemaBuilder, schemas: ISchemaManager) {
 		this.formats = formats
 		this.constraints = constraints
 		this.builder = builder
-		this.schemaManager = schemaManager
+		this.schemas = schemas
 	}
 
 	private static _instance: Jemv
@@ -100,30 +100,26 @@ export class Jemv {
 	}
 
 	public add (schema:Schema):Schema {
-		return this.schemaManager.add(schema) as Schema
+		return this.schemas.add(schema) as Schema
 	}
 
 	public get (key:string):Schema {
-		return this.schemaManager.get(key) as Schema
+		return this.schemas.get(key) as Schema
 	}
 
-	public async load (value:string|Schema): Promise<Schema> {
-		return this.schemaManager.load(value) as Promise<Schema>
+	public async load (value:string|Schema): Promise<Schema[]> {
+		return this.schemas.load(value) as Promise<Schema[]>
 	}
 
 	public normalize (schema:Schema):Schema {
-		return this.schemaManager.normalize(schema) as Schema
-	}
-
-	public externalRefs (schema:Schema):string[] {
-		return this.schemaManager.externalRefs(schema)
+		return this.schemas.normalize(schema) as Schema
 	}
 
 	public async validate (value: string|Schema, data:any) : Promise<ValidationResult> {
 		if (data === undefined) {
 			return { valid: false, errors: [{ path: '.', message: 'data is empty' }] }
 		}
-		const schema = this.schemaManager.solve(value) as Schema
+		const schema = this.schemas.solve(value) as Schema
 		const builded = await this.builder.build(schema)
 		const errors = builded.constraint ? await builded.constraint.eval(data, '.') : []
 		return { valid: errors.length === 0, errors: errors }

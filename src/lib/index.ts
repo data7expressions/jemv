@@ -21,16 +21,12 @@ export const get = (key:string):Schema => {
 	return jemv.get(key) as Schema
 }
 
-export const load = async (value:string|Schema): Promise<Schema> => {
-	return jemv.load(value) as Promise<Schema>
+export const load = async (value:string|Schema): Promise<Schema[]> => {
+	return jemv.load(value) as Promise<Schema[]>
 }
 
 export const normalize = (schema:Schema):Schema => {
 	return jemv.normalize(schema) as Schema
-}
-
-export const externalRefs = (schema:Schema):string[] => {
-	return jemv.externalRefs(schema)
 }
 
 export const validate = async (schema: string|Schema, data:any) : Promise<ValidationResult> => {
