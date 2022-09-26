@@ -871,53 +871,6 @@ export class RefConstraintBuilder implements IConstraintBuilder {
 	}
 }
 
-// export class PatternPropertyConstraintBuilder implements IConstraintBuilder {
-// private constraints: IConstraintManager
-// constructor (constraints: IConstraintManager) {
-// this.constraints = constraints
-// }
-
-// public apply (rule: Schema):boolean {
-// return rule.patternProperties !== undefined
-// }
-
-// public build (root:Schema, rule: Schema): IConstraint {
-// if (rule.patternProperties === undefined) {
-// throw new Error('patternProperties not define')
-// }
-// const patternProperties:{ regExp:RegExp, constraint:IConstraint }[] = []
-// for (const entry of Object.entries(rule.patternProperties)) {
-// let constraint:IConstraint| undefined
-// if (typeof entry[1] === 'object') {
-// constraint = this.constraints.build(root, entry[1] as Schema)
-// } else if (typeof entry[1] === 'boolean') {
-// constraint = new FunctionConstraint((value: string, path:string) : EvalError[] => {
-// return entry[1] as boolean ? [] : [{ path: path, message: 'Pattern properties exists' }]
-// })
-// }
-// if (constraint) {
-// patternProperties.push({ regExp: new RegExp(entry[0]), constraint: constraint })
-// }
-// }
-// return new FunctionConstraint(
-// (value:any, path:string) : EvalError[] => {
-// const errors:EvalError[] = []
-// for (const entry of Object.entries(value)) {
-// for (const patternProperty of patternProperties) {
-// if (patternProperty.regExp.test(entry[0])) {
-// const childErrors = patternProperty.constraint.eval(entry[1], path)
-// if (childErrors.length) {
-// errors.push(...childErrors)
-// }
-// }
-// }
-// }
-// return errors
-// }
-// )
-// }
-// }
-
 export class PropertiesConstraintBuilder implements IConstraintBuilder {
 	private constraints: IConstraintManager
 	constructor (constraints: IConstraintManager) {
@@ -963,15 +916,6 @@ export class PropertiesConstraintBuilder implements IConstraintBuilder {
 			(obj:any, path:string) : EvalError[] => {
 				const errors:EvalError[] = []
 				if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
-					// for (const propertyConstraint of propertiesConstraint) {
-					// const value = obj[propertyConstraint.name]
-					// if (value !== undefined) {
-					// const childErrors = propertyConstraint.constraint.eval(value, path + '.' + propertyConstraint.name)
-					// if (childErrors.length > 0) {
-					// errors.push(...childErrors)
-					// }
-					// }
-					// }
 					for (const entry of Object.entries(obj)) {
 						const propertyErrors:EvalError[] = []
 						const patternErrors:EvalError[] = []
