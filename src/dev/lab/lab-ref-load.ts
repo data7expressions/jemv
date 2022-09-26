@@ -12,10 +12,10 @@ import { jemv, Helper } from '../../lib'
 		const target:any[] = []
 		const source = Helper.tryParse(content)
 		for (const _case of source) {
-			const download = await jemv.load(_case.schema)
-			target.push(download)
+			const loaded = await jemv.load(_case.schema)
+			target.push(loaded)
 		}
-		await Helper.writeFile('./src/dev/lab/normalized.json', JSON.stringify(target, null, 2))
+		await Helper.writeFile('./src/dev/lab/load.json', JSON.stringify(target, null, 2))
 	} catch (error:any) {
 		console.error(error)
 	}

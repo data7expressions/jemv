@@ -8,11 +8,11 @@ export class ConstraintManager implements IConstraintManager {
 		this.builders.push(constraintBuilder)
 	}
 
-	public async build (root:Schema, rule: Schema): Promise<IConstraint | undefined> {
+	public build (root:Schema, rule: Schema): IConstraint | undefined {
 		const constraints:IConstraint[] = []
 		for (const constraintBuilder of this.builders) {
 			if (constraintBuilder.apply(rule)) {
-				constraints.push(await constraintBuilder.build(root, rule))
+				constraints.push(constraintBuilder.build(root, rule))
 			}
 		}
 		if (constraints.length === 0) {

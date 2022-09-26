@@ -1,5 +1,5 @@
 /* eslint-disable no-unexpected-multiline */
-import { jemv, Helper } from '../../lib'
+import { jemv, Helper, ValidationResult } from '../../lib'
 import glob from 'glob'
 
 interface Test {
@@ -25,10 +25,15 @@ interface TestSuite {
 	cases:TestCase[]
 }
 
+interface TestInvalid {
+	test:Test
+	result: ValidationResult
+}
+
 interface TestCaseInvalid {
 	case:string
 	schema: any
-	tests:Test[]
+	tests:TestInvalid[]
 }
 
 interface TestSuiteInvalid {
@@ -36,18 +41,19 @@ interface TestSuiteInvalid {
 	cases:TestCaseInvalid[]
 }
 
-const validate = async (suite:TestSuite):Promise<TestCaseInvalid[]> => {
+const validate = (suite:TestSuite):TestCaseInvalid[] => {
 	const invalids:TestCaseInvalid[] = []
 	for (const _case of suite.cases) {
-		const invalidTest:Test[] = []
+		const invalidTest:TestInvalid[] = []
 		for (const test of _case.tests) {
 			try {
-				const result = await jemv.validate(_case.schema, test.data)
+				const result = jemv.validate(_case.schema, test.data)
 				if (result.valid !== test.valid) {
-					invalidTest.push(test)
+					invalidTest.push({ test: test, result: result })
 				}
 			} catch (error:any) {
 				console.error(`file: ${suite.file}, case : ${_case.description} , test: ${test.description}`)
+				console.log(error.stack)
 			}
 		}
 		if (invalidTest.length > 0) {
@@ -73,7 +79,7 @@ const getFiles = async (pattern: string): Promise<string[]> => {
 	try {
 		process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 		const files = await getFiles('./data/tests/**/*.json')
-		const suitesInvalids:TestSuiteInvalid[] = []
+		const suites:TestSuite[] = []
 		for (const file of files) {
 			// const file = './data/maximum.json'
 			const contents = await Helper.readFile(file)
@@ -84,10 +90,20 @@ const getFiles = async (pattern: string): Promise<string[]> => {
 			if (cases === undefined) {
 				throw new Error(`invalid test suite ${file}`)
 			}
-			const suite = { cases: cases, file: file }
-			const invalids = await validate(suite)
+			suites.push({ cases: cases, file: file })
+		}
+		// load
+		for (const suite of suites) {
+			for (const _case of suite.cases) {
+				await jemv.load(_case.schema)
+			}
+		}
+		// validate
+		const suitesInvalids:TestSuiteInvalid[] = []
+		for (const suite of suites) {
+			const invalids = validate(suite)
 			if (invalids.length > 0) {
-				suitesInvalids.push({ file: file, cases: invalids })
+				suitesInvalids.push({ file: suite.file, cases: invalids })
 			}
 		}
 		const totalInvalids = suitesInvalids.reduce((accumulator, p) => accumulator + p.cases.length, 0)
@@ -95,5 +111,6 @@ const getFiles = async (pattern: string): Promise<string[]> => {
 		await Helper.writeFile('./data/results.json', JSON.stringify(suitesInvalids, null, 2))
 	} catch (error:any) {
 		console.error(error)
+		console.log(error.stack)
 	}
 })()

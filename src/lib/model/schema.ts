@@ -84,9 +84,6 @@ export interface Schema extends SchemaBase {
 	if?:Schema
 	then?:Schema
 	else?:Schema
-
-	$id2?:string
-	$ref2?: string
 }
 
 export interface EvalError {
@@ -99,7 +96,7 @@ export interface ValidationResult {
 	errors:EvalError[]
 }
 export interface IConstraint {
-	eval (value:any, path:string): Promise<EvalError[]>
+	eval (value:any, path:string): EvalError[]
 }
 export interface BuildedSchema {
 	$id?: string
@@ -108,13 +105,9 @@ export interface BuildedSchema {
 
 export interface IConstraintBuilder {
 	apply(rule: Schema): boolean
-	build(root:Schema, rule: Schema): Promise<IConstraint>
+	build(root:Schema, rule: Schema): IConstraint
 }
 export interface IConstraintManager {
 	addBuilder (constraintBuilder:IConstraintBuilder):any
-	build (root:Schema, rule: Schema): Promise<IConstraint | undefined>
-}
-
-export interface ISchemaBuilder {
-	build (schema: Schema): Promise<BuildedSchema>
+	build (root:Schema, rule: Schema): IConstraint | undefined
 }

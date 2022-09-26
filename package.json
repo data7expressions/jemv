@@ -27,8 +27,8 @@
 		"doc": "grunt doc"
 	},
 	"dependencies": {
-		"h3lp": "^0.0.10",
-		"schema-manager": "^0.0.4"
+		"h3lp": "0.0.12",
+		"schema-manager": "0.0.12"
 	},
 	"devDependencies": {
 		"@types/glob": "^8.0.0",
