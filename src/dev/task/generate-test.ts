@@ -82,11 +82,11 @@ const getFiles = async (pattern: string): Promise<string[]> => {
 		const suites:TestSuite[] = []
 		for (const file of files) {
 			// const file = './data/maximum.json'
-			const contents = await Helper.readFile(file)
+			const contents = await Helper.fs.readFile(file)
 			if (contents === null) {
 				throw new Error(`${file} not found`)
 			}
-			const cases = Helper.tryParse(contents) as TestCase[]
+			const cases = Helper.utils.tryParse(contents) as TestCase[]
 			if (cases === undefined) {
 				throw new Error(`invalid test suite ${file}`)
 			}
@@ -108,7 +108,7 @@ const getFiles = async (pattern: string): Promise<string[]> => {
 		}
 		const totalInvalids = suitesInvalids.reduce((accumulator, p) => accumulator + p.cases.length, 0)
 		console.log(`invalids: ${totalInvalids}`)
-		await Helper.writeFile('./data/results.json', JSON.stringify(suitesInvalids, null, 2))
+		await Helper.fs.writeFile('./data/results.json', JSON.stringify(suitesInvalids, null, 2))
 	} catch (error:any) {
 		console.error(error)
 		console.log(error.stack)

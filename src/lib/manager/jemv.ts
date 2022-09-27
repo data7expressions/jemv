@@ -128,7 +128,7 @@ export class Jemv {
 			throw new Error('schema is empty')
 		}
 		// get a key that uniquely identifies a schema
-		const key = schema.$id ? schema.$id : Helper.createKey(schema)
+		const key = schema.$id ? schema.$id : Helper.obj.createKey(schema)
 		// look for the schema in the cache list
 		let builded = this.built[key] as BuildedSchema | undefined
 		if (builded === undefined) {

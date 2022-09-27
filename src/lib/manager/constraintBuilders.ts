@@ -230,7 +230,7 @@ export class UniqueItemsConstraintBuilder implements IConstraintBuilder {
 		}
 		const unique = (source:any[]): boolean => {
 			// in the case of serializing add _ to be able to differentiate a string "{}" from a serialized object {}
-			const array = source.map(p => p !== null && typeof p === 'object' ? '_' + JSON.stringify(Helper.sortObject(source)) : p)
+			const array = source.map(p => p !== null && typeof p === 'object' ? '_' + JSON.stringify(Helper.obj.sortObject(source)) : p)
 			const uniques:any[] = []
 			for (let i = 0; i < array.length; i++) {
 				if (!uniques.includes(array[i])) {
@@ -669,7 +669,7 @@ export class ConstConstraintBuilder implements IConstraintBuilder {
 			_const = JSON.stringify(rule.const)
 			isArray = true
 		} else if (type === 'object' && rule.const !== null) {
-			_const = JSON.stringify(Helper.sortObject(rule.const))
+			_const = JSON.stringify(Helper.obj.sortObject(rule.const))
 		} else {
 			_const = rule.const
 		}
@@ -679,7 +679,7 @@ export class ConstConstraintBuilder implements IConstraintBuilder {
 					const array = JSON.stringify(value)
 					return array === _const ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
 				} else if (type === 'object' && value !== null) {
-					const array = JSON.stringify(Helper.sortObject(value))
+					const array = JSON.stringify(Helper.obj.sortObject(value))
 					return array === _const ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
 				} else {
 					return _const === value ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
@@ -860,11 +860,11 @@ export class RefConstraintBuilder implements IConstraintBuilder {
 		if (path.startsWith('http')) {
 			return path
 		}
-		const schemaId = current.$id || Helper.createKey(current)
+		const schemaId = current.$id || Helper.obj.createKey(current)
 		if (path.startsWith('#') || path.startsWith('/')) {
 			return `${schemaId}/${path}`
 		} else if (current.$id) {
-			return Helper.urlJoin(current.$id, path)
+			return Helper.http.urlJoin(current.$id, path)
 		} else {
 			throw new Error(`${path} invalid uri`)
 		}

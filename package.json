@@ -1,6 +1,6 @@
 {
 	"name": "jemv",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"description": "Json Schema validator",
 	"author": "Flavio Lionel Rita <flaviolrita@hotmail.com>",
 	"license": "Apache-2.0 License",
@@ -27,8 +27,8 @@
 		"doc": "grunt doc"
 	},
 	"dependencies": {
-		"h3lp": "0.0.12",
-		"schema-manager": "0.0.12"
+		"h3lp": "^0.1.8",
+		"schema-manager": "0.1.0"
 	},
 	"devDependencies": {
 		"@types/glob": "^8.0.0",
@@ -37,6 +37,7 @@
 		"@types/yargs": "^17.0.8",
 		"@typescript-eslint/eslint-plugin": "^4.31.1",
 		"@typescript-eslint/parser": "^4.31.1",
+		"ajv": "^8.11.0",
 		"eslint": "^7.32.0",
 		"eslint-config-standard": "^16.0.3",
 		"eslint-plugin-import": "^2.25.4",
@@ -55,8 +56,7 @@
 		"ts-node": "^10.0.0",
 		"typedoc": "^0.22.11",
 		"typedoc-plugin-markdown": "3.11.14",
-		"typescript": "^4.3.5",
-		"ajv": "^8.11.0"
+		"typescript": "^4.3.5"
 	},
 	"keywords": [
 		"json",
