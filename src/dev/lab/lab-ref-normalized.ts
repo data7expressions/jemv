@@ -5,7 +5,7 @@ import { jemv, Helper } from '../../lib'
 	try {
 		process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 		const file = './data/tests/ref.json'
-		const content = await Helper.fs.readFile(file)
+		const content = await Helper.fs.read(file)
 		if (content === null) {
 			throw new Error(`file ${file} not found`)
 		}
@@ -15,7 +15,7 @@ import { jemv, Helper } from '../../lib'
 			const normalized = jemv.normalize(_case.schema)
 			target.push(normalized)
 		}
-		await Helper.fs.writeFile('./src/dev/lab/normalize.json', JSON.stringify(target, null, 2))
+		await Helper.fs.write('./src/dev/lab/normalize.json', JSON.stringify(target, null, 2))
 	} catch (error:any) {
 		console.error(error)
 	}

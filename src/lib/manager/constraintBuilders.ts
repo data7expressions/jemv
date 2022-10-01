@@ -230,7 +230,7 @@ export class UniqueItemsConstraintBuilder implements IConstraintBuilder {
 		}
 		const unique = (source:any[]): boolean => {
 			// in the case of serializing add _ to be able to differentiate a string "{}" from a serialized object {}
-			const array = source.map(p => p !== null && typeof p === 'object' ? '_' + JSON.stringify(Helper.obj.sortObject(source)) : p)
+			const array = source.map(p => p !== null && typeof p === 'object' ? '_' + JSON.stringify(Helper.obj.sort(source)) : p)
 			const uniques:any[] = []
 			for (let i = 0; i < array.length; i++) {
 				if (!uniques.includes(array[i])) {
@@ -669,7 +669,7 @@ export class ConstConstraintBuilder implements IConstraintBuilder {
 			_const = JSON.stringify(rule.const)
 			isArray = true
 		} else if (type === 'object' && rule.const !== null) {
-			_const = JSON.stringify(Helper.obj.sortObject(rule.const))
+			_const = JSON.stringify(Helper.obj.sort(rule.const))
 		} else {
 			_const = rule.const
 		}
@@ -679,7 +679,7 @@ export class ConstConstraintBuilder implements IConstraintBuilder {
 					const array = JSON.stringify(value)
 					return array === _const ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
 				} else if (type === 'object' && value !== null) {
-					const array = JSON.stringify(Helper.obj.sortObject(value))
+					const array = JSON.stringify(Helper.obj.sort(value))
 					return array === _const ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
 				} else {
 					return _const === value ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
