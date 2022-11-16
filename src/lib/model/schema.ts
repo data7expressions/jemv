@@ -1,8 +1,10 @@
+import { Schema as SchemaBase } from 'schema-manager'
 /* eslint-disable @typescript-eslint/ban-types */
 export enum PropertyType {
 	null = 'null',
 	any = 'any',
 	boolean = 'boolean',
+	number = 'number',
 	integer = 'integer',
 	decimal = 'decimal',
 	string = 'string',
@@ -23,32 +25,24 @@ export interface PropertyNames {
 	minLength: number
 }
 
-export interface Contains {
-	type:PropertyType
+export interface InternalId {
+	id: string
+	path: string
 }
-
-export interface Schema {
-	$id?: string
-	$schema?: string
-	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=ref
-	$ref?: string
-	$extends?: string
-	// https://json-schema.org/understanding-json-schema/structuring.html?highlight=defs
-	$defs: any
-
+export interface Schema extends SchemaBase {
 	title?: string
 	name?: string
-	type: PropertyType
-	enum?: string[]
-	items?: Schema
 	properties?: any
+	items?: Schema
+	type?: PropertyType | PropertyType[]
+	enum?: string[]
 	// Validation Keywords for Numeric Instances (number and integer)
 	// https://json-schema.org/draft/2020-12/json-schema-validation.html
 	// https://opis.io/json-schema/2.x/number.html
-	minimum?: any
-	maximum?: any
-	exclusiveMaximum?: boolean
-	exclusiveMinimum?: boolean
+	minimum?: number
+	maximum?: number
+	exclusiveMaximum?: number
+	exclusiveMinimum?: number
 	multipleOf:number
 	// Validation Keywords for Strings
 	// https://opis.io/json-schema/2.x/string.html
@@ -65,7 +59,7 @@ export interface Schema {
 	maxProperties?: number
 	minProperties?: number
 	propertyNames?: PropertyNames // TODO
-	patternProperties?: any // TODO
+	patternProperties?: any
 	additionalProperties?: any // TODO
 	unevaluatedProperties?: any // TODO
 	dependentRequired?: any // TODO
@@ -76,46 +70,44 @@ export interface Schema {
 	maxItems?: number
 	minItems?: number
 	uniqueItems?: boolean
-	contains?:Contains // TODO
-	maxContains?: number // TODO
-	minContains?: number // TODO
+	contains?:Schema | Boolean // In process
+	maxContains?: number // In process
+	minContains?: number
+	const?:any // In process
 	prefixItems?: any // TODO
 	additionalItems?: any // TODO
 	unevaluatedItems?: any // TODO
+	allOf?:Schema[]
+	anyOf?:Schema[]
+	oneOf?:Schema[]
+	not?:Schema
+	if?:Schema
+	then?:Schema
+	else?:Schema
 }
 
-export interface Constraint {
-	message: string
-}
-
-export interface FunctionConstraint extends Constraint {
-	func: Function
-}
-export interface ConstraintBuilder
-{
-	build (property: Schema):Constraint[]
-}
-
-export interface ConstraintValidator
-{
-	apply (constraint: Constraint): boolean
-	validate (constraint: Constraint, data: any): boolean
-}
-
-export interface BuildedSchema {
-	$id?: string
-	$defs?: any
-	$ref?:string
-	type: PropertyType
-	properties?: any
-	items?:BuildedSchema
-	constraints: Constraint[]
-}
-export interface ValidateError {
+export interface EvalError {
 	message:string
 	path:string
 }
-export interface ValidateResult {
-	errors:ValidateError[]
-	isValid: boolean
+
+export interface ValidationResult {
+	valid:boolean
+	errors:EvalError[]
+}
+export interface IConstraint {
+	eval (value:any, path:string): EvalError[]
+}
+export interface BuildedSchema {
+	$id?: string
+	constraint?: IConstraint
+}
+
+export interface IConstraintBuilder {
+	apply(rule: Schema): boolean
+	build(root:Schema, rule: Schema): IConstraint
+}
+export interface IConstraintManager {
+	addBuilder (constraintBuilder:IConstraintBuilder):any
+	build (root:Schema, rule: Schema): IConstraint | undefined
 }

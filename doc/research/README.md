@@ -1,5 +1,10 @@
 # Schema
 
+## Schemas
+
+- [Schemas standard](https://schema.org/)
+- [JSON-LD](https://en.wikipedia.org/wiki/JSON-LD)
+
 ## Examples
 
 - [aws invoice](https://docs.aws.amazon.com/apigateway/latest/developerguide/example-invoice.html)
@@ -15,3 +20,5 @@
 - [json-validator](https://www.npmjs.com/package/json-validator)
 - [jsonschema](https://www.npmjs.com/package/jsonschema)
 - [repository](https://www.schemastore.org/json/)
+- [test suite](c)
+- [online validator](https://json-schema-validator.herokuapp.com/index.jsp)
