@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import { ValidationResult, Schema, IConstraintBuilder, IConstraintManager, IConstraint, BuildedSchema } from '../model/schema'
 import { FormatCollection } from './formatCollection'
 import { schemas, ISchemaManager } from 'schema-manager'
@@ -120,7 +121,7 @@ export class Jemv {
 		const schema = this.schemas.solve(value) as Schema
 		const constraint = this.buildConstraint(schema)
 		const errors = constraint ? constraint.eval(data, '.') : []
-		return { valid: errors.length === 0, errors: errors }
+		return { valid: errors.length === 0, errors }
 	}
 
 	private buildConstraint (schema: Schema): IConstraint | undefined {

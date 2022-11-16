@@ -24,27 +24,27 @@ export class TypeConstraintBuilder implements IConstraintBuilder {
 			switch (rule.type) {
 			case PropertyType.null:
 				func = (value:any, path:string) : EvalError[] => {
-					return value === null ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
+					return value === null ? [] : [{ path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.boolean:
 				func = (value:any, path:string) : EvalError[] => {
-					return value !== null && typeof value === 'boolean' ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
+					return value !== null && typeof value === 'boolean' ? [] : [{ path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.string:
 				func = (value:any, path:string) : EvalError[] => {
-					return value !== null && typeof value === 'string' ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
+					return value !== null && typeof value === 'string' ? [] : [{ path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.integer:
 				func = (value:any, path:string) : EvalError[] => {
-					return value !== null && Number.isInteger(value) ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
+					return value !== null && Number.isInteger(value) ? [] : [{ path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.decimal:
 				func = (value:any, path:string) : EvalError[] => {
-					return value !== null && !isNaN(value) ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
+					return value !== null && !isNaN(value) ? [] : [{ path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.number:
 				func = (value:any, path:string) : EvalError[] => {
-					return value !== null && typeof value === 'number' ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
+					return value !== null && typeof value === 'number' ? [] : [{ path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.date:
 				func = this.formatDatetime('date'); break
@@ -54,15 +54,15 @@ export class TypeConstraintBuilder implements IConstraintBuilder {
 				func = this.formatDatetime('time'); break
 			case PropertyType.object:
 				func = (value:any, path:string) : EvalError[] => {
-					return value !== null && typeof value === 'object' && !Array.isArray(value) ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
+					return value !== null && typeof value === 'object' && !Array.isArray(value) ? [] : [{ path, message: `invalid type ${rule.type}` }]
 				}; break
 			case PropertyType.array:
 				func = (value:any, path:string) : EvalError[] => {
-					return value !== null && Array.isArray(value) ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
+					return value !== null && Array.isArray(value) ? [] : [{ path, message: `invalid type ${rule.type}` }]
 				}; break
 			default:
 				func = (value:any, path:string) : EvalError[] => {
-					return value !== null ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
+					return value !== null ? [] : [{ path, message: `invalid type ${rule.type}` }]
 				}; break
 			}
 		} else if (Array.isArray(rule.type)) {
@@ -72,12 +72,12 @@ export class TypeConstraintBuilder implements IConstraintBuilder {
 				if ((type === PropertyType.integer || type === PropertyType.decimal) && types.includes(PropertyType.number)) {
 					return []
 				} else {
-					return types.includes(type) ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
+					return types.includes(type) ? [] : [{ path, message: `invalid type ${rule.type}` }]
 				}
 			}
 		} else {
 			func = (value:any, path:string) : EvalError[] => {
-				return value !== null ? [] : [{ path: path, message: `invalid type ${rule.type}` }]
+				return value !== null ? [] : [{ path, message: `invalid type ${rule.type}` }]
 			}
 		}
 		return new FunctionConstraint(func)
@@ -86,12 +86,12 @@ export class TypeConstraintBuilder implements IConstraintBuilder {
 	private formatDatetime (format:string): ((value:any, path:string) => EvalError[]) {
 		return (value:any, path:string) : EvalError[] => {
 			if (value === null) {
-				return [{ path: path, message: 'value is null' }]
+				return [{ path, message: 'value is null' }]
 			}
 			if (typeof value === 'string') {
-				return this.formats.test(format, value) ? [] : [{ path: path, message: `invalid format ${format}` }]
+				return this.formats.test(format, value) ? [] : [{ path, message: `invalid format ${format}` }]
 			} else {
-				return typeof value.getMonth === 'function' ? [] : [{ path: path, message: `invalid format ${format}` }]
+				return typeof value.getMonth === 'function' ? [] : [{ path, message: `invalid format ${format}` }]
 			}
 		}
 	}
@@ -135,7 +135,7 @@ export class MultipleOfConstraintBuilder implements IConstraintBuilder {
 		const multipleOf = rule.multipleOf
 		if (Math.floor(multipleOf.valueOf()) === multipleOf.valueOf()) {
 			func = (value:any, path:string) : EvalError[] => {
-				return isNaN(value) || value % multipleOf === 0 ? [] : [{ path: path, message: `is not multiple of ${rule.multipleOf}` }]
+				return isNaN(value) || value % multipleOf === 0 ? [] : [{ path, message: `is not multiple of ${rule.multipleOf}` }]
 			}
 		} else {
 			// number with decimals
@@ -143,7 +143,7 @@ export class MultipleOfConstraintBuilder implements IConstraintBuilder {
 			const shift = Math.pow(10, decimals)
 			const multipleOfShift = multipleOf * shift
 			func = (value:any, path:string) : EvalError[] => {
-				return isNaN(value) || (value * shift) % multipleOfShift === 0 ? [] : [{ path: path, message: `is not multiple of ${rule.multipleOf}` }]
+				return isNaN(value) || (value * shift) % multipleOfShift === 0 ? [] : [{ path, message: `is not multiple of ${rule.multipleOf}` }]
 			}
 		}
 		return new FunctionConstraint(func)
@@ -164,7 +164,7 @@ export class MinMaxPropertiesConstraintBuilder implements IConstraintBuilder {
 						return []
 					}
 					const properties = Object.keys(value).length
-					return properties >= min && properties <= max ? [] : [{ path: path, message: `outside the range from ${min} inclusive to ${max} inclusive properties` }]
+					return properties >= min && properties <= max ? [] : [{ path, message: `outside the range from ${min} inclusive to ${max} inclusive properties` }]
 				}
 			)
 		} else if (min !== undefined) {
@@ -173,7 +173,7 @@ export class MinMaxPropertiesConstraintBuilder implements IConstraintBuilder {
 					if (typeof value !== 'object' || Array.isArray(value)) {
 						return []
 					}
-					return Object.keys(value).length >= min ? [] : [{ path: path, message: `should be less or equal than ${min}` }]
+					return Object.keys(value).length >= min ? [] : [{ path, message: `should be less or equal than ${min}` }]
 				}
 			)
 		} else if (max !== undefined) {
@@ -182,7 +182,7 @@ export class MinMaxPropertiesConstraintBuilder implements IConstraintBuilder {
 					if (typeof value !== 'object' || Array.isArray(value)) {
 						return []
 					}
-					return Object.keys(value).length <= max ? [] : [{ path: path, message: `should be greater or equal than ${max}` }]
+					return Object.keys(value).length <= max ? [] : [{ path, message: `should be greater or equal than ${max}` }]
 				}
 			)
 		}
@@ -200,19 +200,19 @@ export class MinMaxItemsConstraintBuilder implements IConstraintBuilder {
 		if (min !== undefined && max !== undefined) {
 			return new FunctionConstraint(
 				(value:any, path:string) : EvalError[] => {
-					return !Array.isArray(value) || (value.length >= min && value.length <= max) ? [] : [{ path: path, message: `outside the range from ${min} to ${max} items` }]
+					return !Array.isArray(value) || (value.length >= min && value.length <= max) ? [] : [{ path, message: `outside the range from ${min} to ${max} items` }]
 				}
 			)
 		} else if (min !== undefined) {
 			return new FunctionConstraint(
 				(value:any, path:string) : EvalError[] => {
-					return !Array.isArray(value) || value.length >= min ? [] : [{ path: path, message: `should be less or equal than ${min}` }]
+					return !Array.isArray(value) || value.length >= min ? [] : [{ path, message: `should be less or equal than ${min}` }]
 				}
 			)
 		} else if (max !== undefined) {
 			return new FunctionConstraint(
 				(value:any, path:string) : EvalError[] => {
-					return !Array.isArray(value) || value.length <= max ? [] : [{ path: path, message: `should be greater or equal than ${max}` }]
+					return !Array.isArray(value) || value.length <= max ? [] : [{ path, message: `should be greater or equal than ${max}` }]
 				}
 			)
 		}
@@ -243,7 +243,7 @@ export class UniqueItemsConstraintBuilder implements IConstraintBuilder {
 		}
 		const func: (value:any, path:string) => EvalError[] = rule.uniqueItems
 			? (value:any, path:string) : EvalError[] => {
-				return !Array.isArray(value) || unique(value) ? [] : [{ path: path, message: 'Invalid unique items' }]
+				return !Array.isArray(value) || unique(value) ? [] : [{ path, message: 'Invalid unique items' }]
 			}
 			: () : EvalError[] => {
 				return []
@@ -268,10 +268,10 @@ export class MinMaxLengthConstraintBuilder implements IConstraintBuilder {
 						return []
 					}
 					if (value === undefined || value === null) {
-						return [{ path: path, message: 'undefined value' }]
+						return [{ path, message: 'undefined value' }]
 					}
 					const length = Array.from(value).length
-					return length >= min && length <= max ? [] : [{ path: path, message: `outside the range of ${min} to ${max}` }]
+					return length >= min && length <= max ? [] : [{ path, message: `outside the range of ${min} to ${max}` }]
 				}
 			)
 		} else if (min !== undefined) {
@@ -281,10 +281,10 @@ export class MinMaxLengthConstraintBuilder implements IConstraintBuilder {
 						return []
 					}
 					if (value === undefined || value === null) {
-						return [{ path: path, message: 'undefined value' }]
+						return [{ path, message: 'undefined value' }]
 					}
 					const length = Array.from(value).length
-					return length >= min ? [] : [{ path: path, message: `should be less than ${min}` }]
+					return length >= min ? [] : [{ path, message: `should be less than ${min}` }]
 				}
 			)
 		} else if (max !== undefined) {
@@ -294,10 +294,10 @@ export class MinMaxLengthConstraintBuilder implements IConstraintBuilder {
 						return []
 					}
 					if (value === undefined || value === null) {
-						return [{ path: path, message: 'undefined value' }]
+						return [{ path, message: 'undefined value' }]
 					}
 					const length = Array.from(value).length
-					return length <= max ? [] : [{ path: path, message: `should be greater than ${max}` }]
+					return length <= max ? [] : [{ path, message: `should be greater than ${max}` }]
 				}
 			)
 		}
@@ -317,49 +317,49 @@ export class MinMaxConstraintBuilder implements IConstraintBuilder {
 		if (min !== undefined && max !== undefined) {
 			return new FunctionConstraint(
 				(value:any, path:string) : EvalError[] => {
-					return isNaN(value) || (value >= min && value) <= max ? [] : [{ path: path, message: `outside the range form ${min} to ${max}` }]
+					return isNaN(value) || (value >= min && value) <= max ? [] : [{ path, message: `outside the range form ${min} to ${max}` }]
 				}
 			)
 		} else if (exclusiveMinimum !== undefined && exclusiveMaximum !== undefined) {
 			return new FunctionConstraint(
 				(value:any, path:string) : EvalError[] => {
-					return isNaN(value) || (value > exclusiveMinimum && value < exclusiveMaximum) ? [] : [{ path: path, message: `outside the range form ${exclusiveMinimum} exclusive to ${exclusiveMaximum} exclusive` }]
+					return isNaN(value) || (value > exclusiveMinimum && value < exclusiveMaximum) ? [] : [{ path, message: `outside the range form ${exclusiveMinimum} exclusive to ${exclusiveMaximum} exclusive` }]
 				}
 			)
 		} else if (min !== undefined && exclusiveMaximum !== undefined) {
 			return new FunctionConstraint(
 				(value:any, path:string) : EvalError[] => {
-					return isNaN(value) || (value >= min && value < exclusiveMaximum) ? [] : [{ path: path, message: `outside the range form ${min} to ${exclusiveMaximum} exclusive` }]
+					return isNaN(value) || (value >= min && value < exclusiveMaximum) ? [] : [{ path, message: `outside the range form ${min} to ${exclusiveMaximum} exclusive` }]
 				}
 			)
 		} else if (exclusiveMinimum !== undefined && max !== undefined) {
 			return new FunctionConstraint(
 				(value:any, path:string) : EvalError[] => {
-					return isNaN(value) || (value > exclusiveMinimum && value <= max) ? [] : [{ path: path, message: `outside the range form ${exclusiveMinimum} exclusive to ${max}` }]
+					return isNaN(value) || (value > exclusiveMinimum && value <= max) ? [] : [{ path, message: `outside the range form ${exclusiveMinimum} exclusive to ${max}` }]
 				}
 			)
 		} else if (min !== undefined) {
 			return new FunctionConstraint(
 				(value:any, path:string) : EvalError[] => {
-					return isNaN(value) || value >= min ? [] : [{ path: path, message: `should be less or equal than ${min}` }]
+					return isNaN(value) || value >= min ? [] : [{ path, message: `should be less or equal than ${min}` }]
 				}
 			)
 		} else if (exclusiveMinimum !== undefined) {
 			return new FunctionConstraint(
 				(value:any, path:string) : EvalError[] => {
-					return isNaN(value) || value > exclusiveMinimum ? [] : [{ path: path, message: `should be less than ${exclusiveMinimum}` }]
+					return isNaN(value) || value > exclusiveMinimum ? [] : [{ path, message: `should be less than ${exclusiveMinimum}` }]
 				}
 			)
 		} else if (max !== undefined) {
 			return new FunctionConstraint(
 				(value:any, path:string) : EvalError[] => {
-					return isNaN(value) || value <= max ? [] : [{ path: path, message: `should be greater or equal than ${max}` }]
+					return isNaN(value) || value <= max ? [] : [{ path, message: `should be greater or equal than ${max}` }]
 				}
 			)
 		} else if (exclusiveMaximum !== undefined) {
 			return new FunctionConstraint(
 				(value:any, path:string) : EvalError[] => {
-					return isNaN(value) || value < exclusiveMaximum ? [] : [{ path: path, message: `should be greater than ${exclusiveMaximum}` }]
+					return isNaN(value) || value < exclusiveMaximum ? [] : [{ path, message: `should be greater than ${exclusiveMaximum}` }]
 				}
 			)
 		}
@@ -431,7 +431,7 @@ export class RequiredConstraintBuilder implements IConstraintBuilder {
 				}
 				return count === required.length
 					? []
-					: [{ path: path, message: `the following fields are required [${required.join(', ')}]` }]
+					: [{ path, message: `the following fields are required [${required.join(', ')}]` }]
 			}
 		)
 	}
@@ -454,7 +454,7 @@ export class EnumConstraintBuilder implements IConstraintBuilder {
 		const showValues = values.join(',')
 		return new FunctionConstraint(
 			(value:any, path:string) : EvalError[] => {
-				return values.includes(value) ? [] : [{ path: path, message: `not in [${showValues}]` }]
+				return values.includes(value) ? [] : [{ path, message: `not in [${showValues}]` }]
 			}
 		)
 	}
@@ -482,7 +482,7 @@ export class FormatConstraintBuilder implements IConstraintBuilder {
 				if (typeof value !== 'string') {
 					return []
 				}
-				return format.test(value) ? [] : [{ path: path, message: `does not comply with the format ${rule.format}` }]
+				return format.test(value) ? [] : [{ path, message: `does not comply with the format ${rule.format}` }]
 			}
 		)
 	}
@@ -499,7 +499,7 @@ export class PatternConstraintBuilder implements IConstraintBuilder {
 		const regExp = new RegExp(rule.pattern)
 		return new FunctionConstraint(
 			(value:any, path:string) : EvalError[] => {
-				return typeof value !== 'string' || regExp.test(value) ? [] : [{ path: path, message: `does not comply with the format ${rule.pattern}` }]
+				return typeof value !== 'string' || regExp.test(value) ? [] : [{ path, message: `does not comply with the format ${rule.pattern}` }]
 			}
 		)
 	}
@@ -524,7 +524,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 					(value:any, path:string) : EvalError[] => {
 						return !Array.isArray(value) || value.length === 0 || (value.length >= min && value.length <= max)
 							? []
-							: [{ path: path, message: `contains outside the range from ${min} to ${max} items` }]
+							: [{ path, message: `contains outside the range from ${min} to ${max} items` }]
 					}
 				)
 			} else if (min !== undefined) {
@@ -532,7 +532,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 					(value:any, path:string) : EvalError[] => {
 						return !Array.isArray(value) || value.length === 0 || value.length >= min
 							? []
-							: [{ path: path, message: `contains should be less or equal than ${min}` }]
+							: [{ path, message: `contains should be less or equal than ${min}` }]
 					}
 				)
 			} else if (max !== undefined) {
@@ -540,7 +540,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 					(value:any, path:string) : EvalError[] => {
 						return !Array.isArray(value) || value.length === 0 || value.length <= max
 							? []
-							: [{ path: path, message: `contains should be greater or equal than ${max}` }]
+							: [{ path, message: `contains should be greater or equal than ${max}` }]
 					}
 				)
 			}
@@ -550,7 +550,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 					(value:any, path:string) : EvalError[] => {
 						return !Array.isArray(value) || (value.length >= min && value.length <= max)
 							? []
-							: [{ path: path, message: `contains outside the range from ${min} to ${max} items` }]
+							: [{ path, message: `contains outside the range from ${min} to ${max} items` }]
 					}
 				)
 			} else if (min !== undefined) {
@@ -558,7 +558,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 					(value:any, path:string) : EvalError[] => {
 						return !Array.isArray(value) || value.length >= min
 							? []
-							: [{ path: path, message: `contains should be less or equal than ${min}` }]
+							: [{ path, message: `contains should be less or equal than ${min}` }]
 					}
 				)
 			} else if (max !== undefined) {
@@ -566,7 +566,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 					(value:any, path:string) : EvalError[] => {
 						return !Array.isArray(value) || value.length <= max
 							? []
-							: [{ path: path, message: `contains should be greater or equal than ${max}` }]
+							: [{ path, message: `contains should be greater or equal than ${max}` }]
 					}
 				)
 			} else {
@@ -574,7 +574,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 					(value:any, path:string) : EvalError[] => {
 						return !Array.isArray(value) || value.length > 0
 							? []
-							: [{ path: path, message: 'must contain at least one item' }]
+							: [{ path, message: 'must contain at least one item' }]
 					}
 				)
 			}
@@ -604,7 +604,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 							const count = getCount(value, path)
 							return count >= min && count <= max
 								? []
-								: [{ path: path, message: `contains outside the range from ${min} to ${max} items` }]
+								: [{ path, message: `contains outside the range from ${min} to ${max} items` }]
 						}
 					)
 				} else if (min !== undefined) {
@@ -614,7 +614,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 								return []
 							}
 							const count = getCount(value, path)
-							return count >= min ? [] : [{ path: path, message: `contains constraint should be less or equal than ${min}` }]
+							return count >= min ? [] : [{ path, message: `contains constraint should be less or equal than ${min}` }]
 						}
 					)
 				} else if (max !== undefined) {
@@ -624,7 +624,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 								return []
 							}
 							const count = getCount(value, path)
-							return count <= max ? [] : [{ path: path, message: `contains should be greater or equal than ${max}` }]
+							return count <= max ? [] : [{ path, message: `contains should be greater or equal than ${max}` }]
 						}
 					)
 				} else {
@@ -643,7 +643,7 @@ export class ContainsConstraintBuilder implements IConstraintBuilder {
 									errors.push(...childErrors)
 								}
 							}
-							errors.push({ path: path, message: 'does not meet at least one of the contain rules' })
+							errors.push({ path, message: 'does not meet at least one of the contain rules' })
 							return errors
 						}
 					)
@@ -677,12 +677,12 @@ export class ConstConstraintBuilder implements IConstraintBuilder {
 			(value:any, path:string) : EvalError[] => {
 				if (type === 'object' && isArray) {
 					const array = JSON.stringify(value)
-					return array === _const ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
+					return array === _const ? [] : [{ path, message: `Is not ${JSON.stringify(rule.const)}` }]
 				} else if (type === 'object' && value !== null) {
 					const array = JSON.stringify(Helper.obj.sort(value))
-					return array === _const ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
+					return array === _const ? [] : [{ path, message: `Is not ${JSON.stringify(rule.const)}` }]
 				} else {
-					return _const === value ? [] : [{ path: path, message: `Is not ${JSON.stringify(rule.const)}` }]
+					return _const === value ? [] : [{ path, message: `Is not ${JSON.stringify(rule.const)}` }]
 				}
 			}
 		)
@@ -699,7 +699,7 @@ export class BooleanSchemaConstraintBuilder implements IConstraintBuilder {
 		}
 		return new FunctionConstraint(
 			(value:any, path:string) : EvalError[] => {
-				return rule ? [] : [{ path: path, message: 'Boolean schema invalid' }]
+				return rule ? [] : [{ path, message: 'Boolean schema invalid' }]
 			}
 		)
 	}
@@ -760,7 +760,7 @@ export class NotConstraintBuilder implements IConstraintBuilder {
 			(value:any, path:string) : EvalError[] => {
 				if (notConstraint) {
 					const errors = notConstraint.eval(value, path)
-					return errors.length > 0 ? [] : [{ path: path, message: 'not rule is invalid' }]
+					return errors.length > 0 ? [] : [{ path, message: 'not rule is invalid' }]
 				}
 				return []
 			}
@@ -900,10 +900,10 @@ export class PropertiesConstraintBuilder implements IConstraintBuilder {
 					constraint = this.constraints.build(root, entry[1] as Schema)
 				} else if (typeof entry[1] === 'boolean') {
 					constraint = new FunctionConstraint((value: string, path:string) : EvalError[] => {
-						return entry[1] as boolean ? [] : [{ path: path, message: 'Pattern properties exists' }]
+						return entry[1] as boolean ? [] : [{ path, message: 'Pattern properties exists' }]
 					})
 				}
-				patternProperties.push({ regExp: new RegExp(entry[0]), constraint: constraint })
+				patternProperties.push({ regExp: new RegExp(entry[0]), constraint })
 			}
 		}
 		const additionalProperties = rule.additionalProperties === undefined ||
@@ -954,7 +954,7 @@ export class PropertiesConstraintBuilder implements IConstraintBuilder {
 							errors.push(...patternErrors)
 						}
 						if (!additionalProperties && isAdditional) {
-							errors.push({ path: path, message: `The additional property ${entry[0]} is not allowed` })
+							errors.push({ path, message: `The additional property ${entry[0]} is not allowed` })
 						}
 						if (additionalPropertiesConstraint !== undefined && isAdditional) {
 							const childErrors = additionalPropertiesConstraint.eval(entry[1], path)

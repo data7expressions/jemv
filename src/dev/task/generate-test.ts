@@ -8,12 +8,6 @@ interface Test {
 	valid:boolean
 }
 
-interface Test {
-	description:string
-	data:any
-	valid:boolean
-}
-
 interface TestCase {
 	description:string
 	schema:any
@@ -49,7 +43,7 @@ const validate = (suite:TestSuite):TestCaseInvalid[] => {
 			try {
 				const result = jemv.validate(_case.schema, test.data)
 				if (result.valid !== test.valid) {
-					invalidTest.push({ test: test, result: result })
+					invalidTest.push({ test, result })
 				}
 			} catch (error:any) {
 				console.error(`file: ${suite.file}, case : ${_case.description} , test: ${test.description}`)
@@ -90,7 +84,7 @@ const getFiles = async (pattern: string): Promise<string[]> => {
 			if (cases === undefined) {
 				throw new Error(`invalid test suite ${file}`)
 			}
-			suites.push({ cases: cases, file: file })
+			suites.push({ cases, file })
 		}
 		// load
 		for (const suite of suites) {
