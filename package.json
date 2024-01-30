@@ -34,7 +34,7 @@
 		"@types/glob": "^8.0.0",
 		"@types/yargs": "^17.0.13",
 		"glob": "^8.0.3",
-		"ajv": "^8.11.2",
+		"ajv": "^8.12.0",
 		"@types/jest": "^29.2.2",
 		"@types/node": "^18.11.9",
 		"@typescript-eslint/eslint-plugin": "^5.42.1",
