@@ -1,6 +1,5 @@
-import { JemvHelper } from './helper'
-export * from './helper'
+import { h3lp } from 'h3lp'
 export * from './jemv'
 export * from './constraint'
 export * from './constraintManager'
-export const Helper = new JemvHelper()
+export const Helper = h3lp

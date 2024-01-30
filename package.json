@@ -29,10 +29,9 @@
 		"h3lp": "1.5.2",
 		"schema-manager": "1.1.0"
 	},
-	"devDependencies": {
-		"@types/glob": "^8.0.0",
+	"devDependencies": {		
 		"@types/yargs": "^17.0.13",
-		"glob": "^8.0.3",
+		"glob": "10.3.10",
 		"ajv": "^8.11.2",
 		"@types/jest": "^29.5.2",
 		"@types/node": "^20.9.2",

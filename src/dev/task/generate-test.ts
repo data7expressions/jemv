@@ -1,6 +1,6 @@
 /* eslint-disable no-unexpected-multiline */
 import { jemv, Helper, ValidationResult } from '../../lib'
-import glob from 'glob'
+import { glob } from 'glob'
 
 interface Test {
 	description:string
@@ -58,15 +58,7 @@ const validate = (suite:TestSuite):TestCaseInvalid[] => {
 }
 
 const getFiles = async (pattern: string): Promise<string[]> => {
-	return new Promise<string[]>((resolve, reject) => {
-		glob(pattern, (err: Error | null, matches: string[]) => {
-			if (err) {
-				reject(err)
-			} else {
-				resolve(matches)
-			}
-		})
-	})
+	return await glob(pattern)
 }
 
 (async () => {
