@@ -6,25 +6,10 @@
 
 ### Properties
 
-- [$defs](BuildedSchema.md#$defs)
 - [$id](BuildedSchema.md#$id)
-- [$ref](BuildedSchema.md#$ref)
-- [constraints](BuildedSchema.md#constraints)
-- [items](BuildedSchema.md#items)
-- [properties](BuildedSchema.md#properties)
-- [type](BuildedSchema.md#type)
+- [constraint](BuildedSchema.md#constraint)
 
 ## Properties
-
-### $defs
-
-• `Optional` **$defs**: `any`
-
-#### Defined in
-
-[model/schema.ts:107](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L107)
-
-___
 
 ### $id
 
@@ -32,54 +17,14 @@ ___
 
 #### Defined in
 
-[model/schema.ts:106](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L106)
+[src/lib/model/schema.ts:102](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L102)
 
 ___
 
-### $ref
+### constraint
 
-• `Optional` **$ref**: `string`
-
-#### Defined in
-
-[model/schema.ts:108](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L108)
-
-___
-
-### constraints
-
-• **constraints**: [`Constraint`](Constraint.md)[]
+• `Optional` **constraint**: [`IConstraint`](IConstraint.md)
 
 #### Defined in
 
-[model/schema.ts:112](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L112)
-
-___
-
-### items
-
-• `Optional` **items**: [`BuildedSchema`](BuildedSchema.md)
-
-#### Defined in
-
-[model/schema.ts:111](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L111)
-
-___
-
-### properties
-
-• `Optional` **properties**: `any`
-
-#### Defined in
-
-[model/schema.ts:110](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L110)
-
-___
-
-### type
-
-• **type**: [`PropertyType`](../enums/PropertyType.md)
-
-#### Defined in
-
-[model/schema.ts:109](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L109)
+[src/lib/model/schema.ts:103](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L103)

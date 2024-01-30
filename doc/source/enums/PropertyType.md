@@ -14,6 +14,7 @@
 - [decimal](PropertyType.md#decimal)
 - [integer](PropertyType.md#integer)
 - [null](PropertyType.md#null)
+- [number](PropertyType.md#number)
 - [object](PropertyType.md#object)
 - [string](PropertyType.md#string)
 - [time](PropertyType.md#time)
@@ -22,108 +23,118 @@
 
 ### any
 
-• **any**
+• **any** = ``"any"``
 
 #### Defined in
 
-[model/schema.ts:4](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L4)
+[src/lib/model/schema.ts:5](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L5)
 
 ___
 
 ### array
 
-• **array**
+• **array** = ``"array"``
 
 #### Defined in
 
-[model/schema.ts:13](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L13)
+[src/lib/model/schema.ts:15](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L15)
 
 ___
 
 ### boolean
 
-• **boolean**
+• **boolean** = ``"boolean"``
 
 #### Defined in
 
-[model/schema.ts:5](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L5)
+[src/lib/model/schema.ts:6](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L6)
 
 ___
 
 ### date
 
-• **date**
+• **date** = ``"date"``
 
 #### Defined in
 
-[model/schema.ts:9](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L9)
+[src/lib/model/schema.ts:11](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L11)
 
 ___
 
 ### datetime
 
-• **datetime**
+• **datetime** = ``"datetime"``
 
 #### Defined in
 
-[model/schema.ts:11](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L11)
+[src/lib/model/schema.ts:13](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L13)
 
 ___
 
 ### decimal
 
-• **decimal**
+• **decimal** = ``"decimal"``
 
 #### Defined in
 
-[model/schema.ts:7](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L7)
+[src/lib/model/schema.ts:9](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L9)
 
 ___
 
 ### integer
 
-• **integer**
+• **integer** = ``"integer"``
 
 #### Defined in
 
-[model/schema.ts:6](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L6)
+[src/lib/model/schema.ts:8](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L8)
 
 ___
 
 ### null
 
-• **null**
+• **null** = ``"null"``
 
 #### Defined in
 
-[model/schema.ts:3](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L3)
+[src/lib/model/schema.ts:4](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L4)
+
+___
+
+### number
+
+• **number** = ``"number"``
+
+#### Defined in
+
+[src/lib/model/schema.ts:7](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L7)
 
 ___
 
 ### object
 
-• **object**
+• **object** = ``"object"``
 
 #### Defined in
 
-[model/schema.ts:12](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L12)
+[src/lib/model/schema.ts:14](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L14)
 
 ___
 
 ### string
 
-• **string**
+• **string** = ``"string"``
 
 #### Defined in
 
-[model/schema.ts:8](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L8)
+[src/lib/model/schema.ts:10](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L10)
 
 ___
 
 ### time
 
-• **time**
+• **time** = ``"time"``
 
 #### Defined in
 
-[model/schema.ts:10](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L10)
+[src/lib/model/schema.ts:12](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/model/schema.ts#L12)

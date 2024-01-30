@@ -16,28 +16,25 @@
 
 - [add](Jemv.md#add)
 - [addConstraintBuilder](Jemv.md#addconstraintbuilder)
-- [addConstraintValidator](Jemv.md#addconstraintvalidator)
 - [addFormat](Jemv.md#addformat)
-- [build](Jemv.md#build)
-- [complete](Jemv.md#complete)
 - [get](Jemv.md#get)
+- [load](Jemv.md#load)
+- [normalize](Jemv.md#normalize)
 - [validate](Jemv.md#validate)
 
 ## Constructors
 
 ### constructor
 
-• **new Jemv**()
+• **new Jemv**(`formats`, `constraints`, `schemas`): [`Jemv`](Jemv.md)
 
-#### Defined in
+#### Parameters
 
-[manager/jemv.ts:10](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L10)
-
-## Accessors
-
-### instance
-
-• `Static` `get` **instance**(): [`Jemv`](Jemv.md)
+| Name | Type |
+| :------ | :------ |
+| `formats` | `FormatCollection` |
+| `constraints` | [`IConstraintManager`](../interfaces/IConstraintManager.md) |
+| `schemas` | `ISchemaManager` |
 
 #### Returns
 
@@ -45,13 +42,27 @@
 
 #### Defined in
 
-[manager/jemv.ts:29](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L29)
+[src/lib/manager/jemv.ts:79](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L79)
+
+## Accessors
+
+### instance
+
+• `get` **instance**(): [`Jemv`](Jemv.md)
+
+#### Returns
+
+[`Jemv`](Jemv.md)
+
+#### Defined in
+
+[src/lib/manager/jemv.ts:86](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L86)
 
 ## Methods
 
 ### add
 
-▸ **add**(`schema`): [`BuildedSchema`](../interfaces/BuildedSchema.md)
+▸ **add**(`schema`): [`Schema`](../interfaces/Schema.md)
 
 #### Parameters
 
@@ -61,11 +72,11 @@
 
 #### Returns
 
-[`BuildedSchema`](../interfaces/BuildedSchema.md)
+[`Schema`](../interfaces/Schema.md)
 
 #### Defined in
 
-[manager/jemv.ts:48](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L48)
+[src/lib/manager/jemv.ts:101](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L101)
 
 ___
 
@@ -77,7 +88,7 @@ ___
 
 | Name | Type |
 | :------ | :------ |
-| `constraintBuilder` | [`ConstraintBuilder`](../interfaces/ConstraintBuilder.md) |
+| `constraintBuilder` | [`IConstraintBuilder`](../interfaces/IConstraintBuilder.md) |
 
 #### Returns
 
@@ -85,27 +96,7 @@ ___
 
 #### Defined in
 
-[manager/jemv.ts:40](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L40)
-
-___
-
-### addConstraintValidator
-
-▸ **addConstraintValidator**(`constraintValidator`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `constraintValidator` | [`ConstraintValidator`](../interfaces/ConstraintValidator.md) |
-
-#### Returns
-
-`void`
-
-#### Defined in
-
-[manager/jemv.ts:44](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L44)
+[src/lib/manager/jemv.ts:97](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L97)
 
 ___
 
@@ -126,33 +117,53 @@ ___
 
 #### Defined in
 
-[manager/jemv.ts:36](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L36)
+[src/lib/manager/jemv.ts:93](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L93)
 
 ___
 
-### build
+### get
 
-▸ **build**(`schema`): [`BuildedSchema`](../interfaces/BuildedSchema.md)
+▸ **get**(`key`): [`Schema`](../interfaces/Schema.md)
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `schema` | [`Schema`](../interfaces/Schema.md) |
+| `key` | `string` |
 
 #### Returns
 
-[`BuildedSchema`](../interfaces/BuildedSchema.md)
+[`Schema`](../interfaces/Schema.md)
 
 #### Defined in
 
-[manager/jemv.ts:60](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L60)
+[src/lib/manager/jemv.ts:105](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L105)
 
 ___
 
-### complete
+### load
 
-▸ **complete**(`schema`): [`Schema`](../interfaces/Schema.md)
+▸ **load**(`value`): `Promise`\<[`Schema`](../interfaces/Schema.md)[]\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `value` | `string` \| [`Schema`](../interfaces/Schema.md) |
+
+#### Returns
+
+`Promise`\<[`Schema`](../interfaces/Schema.md)[]\>
+
+#### Defined in
+
+[src/lib/manager/jemv.ts:109](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L109)
+
+___
+
+### normalize
+
+▸ **normalize**(`schema`): [`Schema`](../interfaces/Schema.md)
 
 #### Parameters
 
@@ -166,45 +177,25 @@ ___
 
 #### Defined in
 
-[manager/jemv.ts:56](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L56)
-
-___
-
-### get
-
-▸ **get**(`uri`): `Promise`<[`BuildedSchema`](../interfaces/BuildedSchema.md)\>
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `uri` | `string` |
-
-#### Returns
-
-`Promise`<[`BuildedSchema`](../interfaces/BuildedSchema.md)\>
-
-#### Defined in
-
-[manager/jemv.ts:52](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L52)
+[src/lib/manager/jemv.ts:113](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L113)
 
 ___
 
 ### validate
 
-▸ **validate**(`schema`, `data`): `Promise`<[`ValidateResult`](../interfaces/ValidateResult.md)\>
+▸ **validate**(`value`, `data`): [`ValidationResult`](../interfaces/ValidationResult.md)
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `schema` | `string` \| [`Schema`](../interfaces/Schema.md) |
+| `value` | `string` \| [`Schema`](../interfaces/Schema.md) |
 | `data` | `any` |
 
 #### Returns
 
-`Promise`<[`ValidateResult`](../interfaces/ValidateResult.md)\>
+[`ValidationResult`](../interfaces/ValidationResult.md)
 
 #### Defined in
 
-[manager/jemv.ts:64](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L64)
+[src/lib/manager/jemv.ts:117](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L117)

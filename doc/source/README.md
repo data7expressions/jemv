@@ -10,45 +10,51 @@ jemv
 
 ### Classes
 
-- [CoreConstraintBuilder](classes/CoreConstraintBuilder.md)
-- [FormatCollection](classes/FormatCollection.md)
-- [FunctionConstraintValidator](classes/FunctionConstraintValidator.md)
+- [AndConstraint](classes/AndConstraint.md)
+- [ConstraintManager](classes/ConstraintManager.md)
+- [FunctionConstraint](classes/FunctionConstraint.md)
 - [Jemv](classes/Jemv.md)
-- [SchemaBuilder](classes/SchemaBuilder.md)
-- [SchemaCollection](classes/SchemaCollection.md)
-- [SchemaCompleter](classes/SchemaCompleter.md)
-- [SchemaValidator](classes/SchemaValidator.md)
+- [JemvBuilder](classes/JemvBuilder.md)
 
 ### Interfaces
 
 - [BuildedSchema](interfaces/BuildedSchema.md)
-- [Constraint](interfaces/Constraint.md)
-- [ConstraintBuilder](interfaces/ConstraintBuilder.md)
-- [ConstraintValidator](interfaces/ConstraintValidator.md)
-- [Contains](interfaces/Contains.md)
 - [ContentSchema](interfaces/ContentSchema.md)
-- [FunctionConstraint](interfaces/FunctionConstraint.md)
+- [EvalError](interfaces/EvalError.md)
+- [IConstraint](interfaces/IConstraint.md)
+- [IConstraintBuilder](interfaces/IConstraintBuilder.md)
+- [IConstraintManager](interfaces/IConstraintManager.md)
+- [InternalId](interfaces/InternalId.md)
 - [PropertyNames](interfaces/PropertyNames.md)
 - [Schema](interfaces/Schema.md)
-- [ValidateError](interfaces/ValidateError.md)
-- [ValidateResult](interfaces/ValidateResult.md)
+- [ValidationResult](interfaces/ValidationResult.md)
 
 ### Variables
 
+- [Helper](README.md#helper)
 - [jemv](README.md#jemv)
 
 ### Functions
 
 - [add](README.md#add)
 - [addConstraintBuilder](README.md#addconstraintbuilder)
-- [addConstraintValidator](README.md#addconstraintvalidator)
 - [addFormat](README.md#addformat)
-- [build](README.md#build)
-- [complete](README.md#complete)
 - [get](README.md#get)
+- [load](README.md#load)
+- [normalize](README.md#normalize)
 - [validate](README.md#validate)
 
 ## Variables
+
+### Helper
+
+• `Const` **Helper**: `H3lp` = `h3lp`
+
+#### Defined in
+
+[src/lib/manager/index.ts:5](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/index.ts#L5)
+
+___
 
 ### jemv
 
@@ -56,13 +62,13 @@ jemv
 
 #### Defined in
 
-[index.ts:7](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L7)
+[src/lib/index.ts:6](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/index.ts#L6)
 
 ## Functions
 
 ### add
 
-▸ **add**(`schema`): [`BuildedSchema`](interfaces/BuildedSchema.md)
+▸ **add**(`schema`): [`Schema`](interfaces/Schema.md)
 
 #### Parameters
 
@@ -72,11 +78,11 @@ jemv
 
 #### Returns
 
-[`BuildedSchema`](interfaces/BuildedSchema.md)
+[`Schema`](interfaces/Schema.md)
 
 #### Defined in
 
-[index.ts:21](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L21)
+[src/lib/index.ts:16](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/index.ts#L16)
 
 ___
 
@@ -88,7 +94,7 @@ ___
 
 | Name | Type |
 | :------ | :------ |
-| `constraintBuilder` | [`ConstraintBuilder`](interfaces/ConstraintBuilder.md) |
+| `constraintBuilder` | [`IConstraintBuilder`](interfaces/IConstraintBuilder.md) |
 
 #### Returns
 
@@ -96,27 +102,7 @@ ___
 
 #### Defined in
 
-[index.ts:13](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L13)
-
-___
-
-### addConstraintValidator
-
-▸ **addConstraintValidator**(`constraintValidator`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `constraintValidator` | [`ConstraintValidator`](interfaces/ConstraintValidator.md) |
-
-#### Returns
-
-`void`
-
-#### Defined in
-
-[index.ts:17](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L17)
+[src/lib/index.ts:12](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/index.ts#L12)
 
 ___
 
@@ -137,33 +123,53 @@ ___
 
 #### Defined in
 
-[index.ts:9](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L9)
+[src/lib/index.ts:8](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/index.ts#L8)
 
 ___
 
-### build
+### get
 
-▸ **build**(`schema`): [`BuildedSchema`](interfaces/BuildedSchema.md)
+▸ **get**(`key`): [`Schema`](interfaces/Schema.md)
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `schema` | [`Schema`](interfaces/Schema.md) |
+| `key` | `string` |
 
 #### Returns
 
-[`BuildedSchema`](interfaces/BuildedSchema.md)
+[`Schema`](interfaces/Schema.md)
 
 #### Defined in
 
-[index.ts:33](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L33)
+[src/lib/index.ts:20](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/index.ts#L20)
 
 ___
 
-### complete
+### load
 
-▸ **complete**(`schema`): [`Schema`](interfaces/Schema.md)
+▸ **load**(`value`): `Promise`\<[`Schema`](interfaces/Schema.md)[]\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `value` | `string` \| [`Schema`](interfaces/Schema.md) |
+
+#### Returns
+
+`Promise`\<[`Schema`](interfaces/Schema.md)[]\>
+
+#### Defined in
+
+[src/lib/index.ts:24](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/index.ts#L24)
+
+___
+
+### normalize
+
+▸ **normalize**(`schema`): [`Schema`](interfaces/Schema.md)
 
 #### Parameters
 
@@ -177,33 +183,13 @@ ___
 
 #### Defined in
 
-[index.ts:29](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L29)
-
-___
-
-### get
-
-▸ **get**(`uri`): `Promise`<[`BuildedSchema`](interfaces/BuildedSchema.md)\>
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `uri` | `string` |
-
-#### Returns
-
-`Promise`<[`BuildedSchema`](interfaces/BuildedSchema.md)\>
-
-#### Defined in
-
-[index.ts:25](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L25)
+[src/lib/index.ts:28](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/index.ts#L28)
 
 ___
 
 ### validate
 
-▸ **validate**(`schema`, `data`): `Promise`<[`ValidateResult`](interfaces/ValidateResult.md)\>
+▸ **validate**(`schema`, `data`): `Promise`\<[`ValidationResult`](interfaces/ValidationResult.md)\>
 
 #### Parameters
 
@@ -214,8 +200,8 @@ ___
 
 #### Returns
 
-`Promise`<[`ValidateResult`](interfaces/ValidateResult.md)\>
+`Promise`\<[`ValidationResult`](interfaces/ValidationResult.md)\>
 
 #### Defined in
 
-[index.ts:37](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L37)
+[src/lib/index.ts:32](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/index.ts#L32)
