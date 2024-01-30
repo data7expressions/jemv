@@ -9,54 +9,53 @@
 		"node": ">=10"
 	},
 	"main": "src/index.js",
-	"homepage": "https://github.com/FlavioLionelRita/jemv#readme",
+	"homepage": "https://github.com/data7expressions/jemv#readme",
 	"bugs": {
-		"url": "https://github.com/FlavioLionelRita/jemv/issues"
+		"url": "https://github.com/data7expressions/jemv/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/FlavioLionelRita/jemv.git"
+		"url": "https://github.com/data7expressions/jemv.git"
 	},
 	"scripts": {
 		"lint": "npx eslint src",
 		"test": "npx jest --config jest-unit-config.json",
 		"build": "npx tsc",
 		"dist": "grunt dist",
-		"to_develop": "grunt to_develop",
-		"release": "grunt release",
-		"doc": "grunt doc"
+		"doc": "grunt doc",
+		"release": "grunt release"
 	},
 	"dependencies": {
-		"h3lp": "1.0.7",
-		"schema-manager": "1.0.1"
+		"h3lp": "1.5.2",
+		"schema-manager": "1.1.0"
 	},
 	"devDependencies": {
 		"@types/glob": "^8.0.0",
 		"@types/yargs": "^17.0.13",
 		"glob": "^8.0.3",
 		"ajv": "^8.11.2",
-		"@types/jest": "^29.2.2",
-		"@types/node": "^18.11.9",
-		"@typescript-eslint/eslint-plugin": "^5.42.1",
-		"@typescript-eslint/parser": "^5.42.1",
-		"eslint": "^8.27.0",
-		"eslint-config-standard": "^17.0.0",
-		"eslint-plugin-import": "^2.26.0",
+		"@types/jest": "^29.5.2",
+		"@types/node": "^20.9.2",
+		"@typescript-eslint/eslint-plugin": "^6.12.0",
+		"@typescript-eslint/parser": "^6.12.0",
+		"eslint": "^8.54.0",
+		"eslint-config-standard": "^17.1.0",
+		"eslint-plugin-import": "^2.27.5",
 		"eslint-plugin-node": "^11.1.0",
 		"eslint-plugin-promise": "^6.1.1",
 		"grunt": "^1.5.3",
 		"grunt-contrib-clean": "^2.0.1",
-		"grunt-contrib-concat": "^1.0.1",
+		"grunt-contrib-concat": "^2.1.0",
 		"grunt-contrib-copy": "^1.0.0",
 		"grunt-contrib-uglify": "^5.0.1",
 		"grunt-exec": "^3.0.0",
+		"jest": "^29.5.0",
 		"load-grunt-tasks": "^5.1.0",
-		"jest": "^29.3.1",
-		"ts-jest": "^29.0.3",
+		"ts-jest": "^29.1.0",
 		"ts-node": "^10.9.1",
-		"typedoc": "^0.23.21",
-		"typedoc-plugin-markdown": "3.13.6",
-		"typescript": "4.8.4"
+		"typedoc": "^0.25.3",
+		"typedoc-plugin-markdown": "3.17.1",
+		"typescript": "5.3.3"
 	},
 	"keywords": [
 		"json",

@@ -31,7 +31,7 @@
 
 #### Defined in
 
-[manager/jemv.ts:10](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L10)
+[manager/jemv.ts:10](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L10)
 
 ## Accessors
 
@@ -45,7 +45,7 @@
 
 #### Defined in
 
-[manager/jemv.ts:29](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L29)
+[manager/jemv.ts:29](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L29)
 
 ## Methods
 
@@ -65,7 +65,7 @@
 
 #### Defined in
 
-[manager/jemv.ts:48](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L48)
+[manager/jemv.ts:48](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L48)
 
 ___
 
@@ -85,7 +85,7 @@ ___
 
 #### Defined in
 
-[manager/jemv.ts:40](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L40)
+[manager/jemv.ts:40](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L40)
 
 ___
 
@@ -105,7 +105,7 @@ ___
 
 #### Defined in
 
-[manager/jemv.ts:44](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L44)
+[manager/jemv.ts:44](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L44)
 
 ___
 
@@ -126,7 +126,7 @@ ___
 
 #### Defined in
 
-[manager/jemv.ts:36](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L36)
+[manager/jemv.ts:36](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L36)
 
 ___
 
@@ -146,7 +146,7 @@ ___
 
 #### Defined in
 
-[manager/jemv.ts:60](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L60)
+[manager/jemv.ts:60](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L60)
 
 ___
 
@@ -166,7 +166,7 @@ ___
 
 #### Defined in
 
-[manager/jemv.ts:56](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L56)
+[manager/jemv.ts:56](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L56)
 
 ___
 
@@ -186,7 +186,7 @@ ___
 
 #### Defined in
 
-[manager/jemv.ts:52](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L52)
+[manager/jemv.ts:52](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L52)
 
 ___
 
@@ -207,4 +207,4 @@ ___
 
 #### Defined in
 
-[manager/jemv.ts:64](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L64)
+[manager/jemv.ts:64](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/jemv.ts#L64)

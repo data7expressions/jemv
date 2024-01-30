@@ -30,7 +30,7 @@
 
 #### Defined in
 
-[manager/schema.ts:464](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L464)
+[manager/schema.ts:464](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L464)
 
 ## Methods
 
@@ -50,7 +50,7 @@
 
 #### Defined in
 
-[manager/schema.ts:470](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L470)
+[manager/schema.ts:470](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L470)
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 #### Defined in
 
-[manager/schema.ts:480](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L480)
+[manager/schema.ts:480](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L480)
 
 ___
 
@@ -92,7 +92,7 @@ ___
 
 #### Defined in
 
-[manager/schema.ts:518](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L518)
+[manager/schema.ts:518](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L518)
 
 ___
 
@@ -112,4 +112,4 @@ ___
 
 #### Defined in
 
-[manager/schema.ts:495](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L495)
+[manager/schema.ts:495](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L495)

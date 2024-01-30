@@ -31,7 +31,7 @@
 
 #### Defined in
 
-[model/schema.ts:101](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/model/schema.ts#L101)
+[model/schema.ts:101](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L101)
 
 ___
 
@@ -52,4 +52,4 @@ ___
 
 #### Defined in
 
-[model/schema.ts:102](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/model/schema.ts#L102)
+[model/schema.ts:102](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L102)

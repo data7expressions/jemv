@@ -26,7 +26,7 @@
 
 #### Defined in
 
-[manager/schema.ts:81](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L81)
+[manager/schema.ts:81](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L81)
 
 ## Properties
 
@@ -36,7 +36,7 @@
 
 #### Defined in
 
-[manager/schema.ts:80](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L80)
+[manager/schema.ts:80](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L80)
 
 ## Methods
 
@@ -57,7 +57,7 @@
 
 #### Defined in
 
-[manager/schema.ts:85](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L85)
+[manager/schema.ts:85](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L85)
 
 ___
 
@@ -77,7 +77,7 @@ ___
 
 #### Defined in
 
-[manager/schema.ts:89](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L89)
+[manager/schema.ts:89](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L89)
 
 ___
 
@@ -98,4 +98,4 @@ ___
 
 #### Defined in
 
-[manager/schema.ts:93](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L93)
+[manager/schema.ts:93](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L93)

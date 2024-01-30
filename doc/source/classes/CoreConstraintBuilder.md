@@ -30,7 +30,7 @@
 
 #### Defined in
 
-[manager/schema.ts:104](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L104)
+[manager/schema.ts:104](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L104)
 
 ## Methods
 
@@ -54,4 +54,4 @@
 
 #### Defined in
 
-[manager/schema.ts:108](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L108)
+[manager/schema.ts:108](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L108)

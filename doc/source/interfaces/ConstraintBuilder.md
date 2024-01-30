@@ -30,4 +30,4 @@
 
 #### Defined in
 
-[model/schema.ts:96](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/model/schema.ts#L96)
+[model/schema.ts:96](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L96)

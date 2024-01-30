@@ -16,4 +16,4 @@
 
 #### Defined in
 
-[model/schema.ts:27](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/model/schema.ts#L27)
+[model/schema.ts:27](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/model/schema.ts#L27)

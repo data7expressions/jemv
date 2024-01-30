@@ -56,7 +56,7 @@ jemv
 
 #### Defined in
 
-[index.ts:7](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/index.ts#L7)
+[index.ts:7](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L7)
 
 ## Functions
 
@@ -76,7 +76,7 @@ jemv
 
 #### Defined in
 
-[index.ts:21](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/index.ts#L21)
+[index.ts:21](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L21)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 #### Defined in
 
-[index.ts:13](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/index.ts#L13)
+[index.ts:13](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L13)
 
 ___
 
@@ -116,7 +116,7 @@ ___
 
 #### Defined in
 
-[index.ts:17](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/index.ts#L17)
+[index.ts:17](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L17)
 
 ___
 
@@ -137,7 +137,7 @@ ___
 
 #### Defined in
 
-[index.ts:9](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/index.ts#L9)
+[index.ts:9](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L9)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 #### Defined in
 
-[index.ts:33](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/index.ts#L33)
+[index.ts:33](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L33)
 
 ___
 
@@ -177,7 +177,7 @@ ___
 
 #### Defined in
 
-[index.ts:29](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/index.ts#L29)
+[index.ts:29](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L29)
 
 ___
 
@@ -197,7 +197,7 @@ ___
 
 #### Defined in
 
-[index.ts:25](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/index.ts#L25)
+[index.ts:25](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L25)
 
 ___
 
@@ -218,4 +218,4 @@ ___
 
 #### Defined in
 
-[index.ts:37](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/index.ts#L37)
+[index.ts:37](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/index.ts#L37)

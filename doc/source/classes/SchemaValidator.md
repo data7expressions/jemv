@@ -27,7 +27,7 @@
 
 #### Defined in
 
-[manager/schema.ts:590](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L590)
+[manager/schema.ts:590](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L590)
 
 ## Methods
 
@@ -47,7 +47,7 @@
 
 #### Defined in
 
-[manager/schema.ts:594](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L594)
+[manager/schema.ts:594](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L594)
 
 ___
 
@@ -68,4 +68,4 @@ ___
 
 #### Defined in
 
-[manager/schema.ts:598](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L598)
+[manager/schema.ts:598](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L598)

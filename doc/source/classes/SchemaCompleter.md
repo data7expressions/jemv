@@ -36,4 +36,4 @@
 
 #### Defined in
 
-[manager/schema.ts:6](https://github.com/FlavioLionelRita/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L6)
+[manager/schema.ts:6](https://github.com/data7expressions/jemv/blob/b3abfe7/src/lib/manager/schema.ts#L6)
