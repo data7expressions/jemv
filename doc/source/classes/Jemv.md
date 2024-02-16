@@ -42,7 +42,7 @@
 
 #### Defined in
 
-[src/lib/manager/jemv.ts:79](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L79)
+[src/lib/manager/jemv.ts:79](https://github.com/data7expressions/jemv/blob/d9a8263/src/lib/manager/jemv.ts#L79)
 
 ## Accessors
 
@@ -56,7 +56,7 @@
 
 #### Defined in
 
-[src/lib/manager/jemv.ts:86](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L86)
+[src/lib/manager/jemv.ts:86](https://github.com/data7expressions/jemv/blob/d9a8263/src/lib/manager/jemv.ts#L86)
 
 ## Methods
 
@@ -76,7 +76,7 @@
 
 #### Defined in
 
-[src/lib/manager/jemv.ts:101](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L101)
+[src/lib/manager/jemv.ts:101](https://github.com/data7expressions/jemv/blob/d9a8263/src/lib/manager/jemv.ts#L101)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 #### Defined in
 
-[src/lib/manager/jemv.ts:97](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L97)
+[src/lib/manager/jemv.ts:97](https://github.com/data7expressions/jemv/blob/d9a8263/src/lib/manager/jemv.ts#L97)
 
 ___
 
@@ -117,7 +117,7 @@ ___
 
 #### Defined in
 
-[src/lib/manager/jemv.ts:93](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L93)
+[src/lib/manager/jemv.ts:93](https://github.com/data7expressions/jemv/blob/d9a8263/src/lib/manager/jemv.ts#L93)
 
 ___
 
@@ -137,7 +137,7 @@ ___
 
 #### Defined in
 
-[src/lib/manager/jemv.ts:105](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L105)
+[src/lib/manager/jemv.ts:105](https://github.com/data7expressions/jemv/blob/d9a8263/src/lib/manager/jemv.ts#L105)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 #### Defined in
 
-[src/lib/manager/jemv.ts:109](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L109)
+[src/lib/manager/jemv.ts:109](https://github.com/data7expressions/jemv/blob/d9a8263/src/lib/manager/jemv.ts#L109)
 
 ___
 
@@ -177,7 +177,7 @@ ___
 
 #### Defined in
 
-[src/lib/manager/jemv.ts:113](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L113)
+[src/lib/manager/jemv.ts:113](https://github.com/data7expressions/jemv/blob/d9a8263/src/lib/manager/jemv.ts#L113)
 
 ___
 
@@ -198,4 +198,4 @@ ___
 
 #### Defined in
 
-[src/lib/manager/jemv.ts:117](https://github.com/data7expressions/jemv/blob/f58946d/src/lib/manager/jemv.ts#L117)
+[src/lib/manager/jemv.ts:117](https://github.com/data7expressions/jemv/blob/d9a8263/src/lib/manager/jemv.ts#L117)
