@@ -27,7 +27,7 @@
 	},
 	"dependencies": {
 		"h3lp": "1.5.8",
-		"schema-manager": "1.1.0"
+		"schema-manager": "1.1.1"
 	},
 	"devDependencies": {
 		"@types/yargs": "^17.0.13",
