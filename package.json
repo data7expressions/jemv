@@ -26,7 +26,7 @@
 		"release": "grunt release"
 	},
 	"dependencies": {
-		"h3lp": "1.5.8",
+		"h3lp": "1.6.0",
 		"schema-manager": "1.1.0"
 	},
 	"devDependencies": {
