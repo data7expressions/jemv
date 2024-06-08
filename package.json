@@ -26,10 +26,8 @@
 		"release": "grunt release"
 	},
 	"dependencies": {
-
 		"h3lp": "1.12.1",
 		"schema-manager": "1.1.1"
-
 	},
 	"devDependencies": {
 		"@types/yargs": "^17.0.13",
