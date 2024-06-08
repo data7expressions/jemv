@@ -34,4 +34,4 @@
 
 #### Defined in
 
-[src/lib/manager/jemv.ts:15](https://github.com/data7expressions/jemv/blob/d9a8263/src/lib/manager/jemv.ts#L15)
+[src/lib/manager/jemv.ts:15](https://github.com/data7expressions/jemv/blob/8fc7e43bbe8003ed3c89190ec9032f686bac5421/src/lib/manager/jemv.ts#L15)
